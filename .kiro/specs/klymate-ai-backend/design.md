@@ -68,6 +68,14 @@ GET  /ai/insights          # Carbon footprint insights
 GET  /gamification/badges       # Available badges
 GET  /gamification/leaderboard  # User rankings
 
+# Carbon Credits Routes
+GET  /credits/balance          # User's current credit balance
+GET  /credits/transactions     # Credit transaction history
+POST /credits/redeem          # Redeem credits for cash/offsets
+GET  /credits/rates           # Current exchange rates
+GET  /credits/verification    # Pending verifications
+POST /credits/verify          # Submit verification evidence
+
 # Analytics Routes
 GET  /analytics/dashboard  # Dashboard data
 GET  /analytics/trends     # Trends and comparisons
@@ -88,6 +96,9 @@ class AICoachService:
     
 class GamificationService:
     """Handles badges, streaks, and leaderboards"""
+    
+class CarbonCreditsService:
+    """Manages carbon credit calculations, verification, and redemptions"""
     
 class AnalyticsService:
     """Provides insights and trend analysis"""
@@ -196,6 +207,79 @@ CREATE TABLE user_badges (
     badge_id UUID REFERENCES badges(id),
     earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_user_badge (user_id, badge_id)
+);
+```
+
+#### Carbon Credits System
+```sql
+CREATE TABLE carbon_credit_rates (
+    id UUID PRIMARY KEY,
+    rate_type ENUM('co2_to_kc', 'kc_to_usd') NOT NULL,
+    rate_value DECIMAL(10,6) NOT NULL,
+    effective_date TIMESTAMP NOT NULL,
+    source VARCHAR(255), -- Market source or manual
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_rate_date (rate_type, effective_date)
+);
+
+CREATE TABLE user_carbon_credits (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    current_balance DECIMAL(12,4) DEFAULT 0,
+    total_earned DECIMAL(12,4) DEFAULT 0,
+    total_redeemed DECIMAL(12,4) DEFAULT 0,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_credits (user_id)
+);
+
+CREATE TABLE carbon_credit_transactions (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    transaction_type ENUM('earned', 'redeemed', 'transferred', 'expired') NOT NULL,
+    amount DECIMAL(12,4) NOT NULL,
+    co2_saved DECIMAL(8,4), -- For earned credits
+    activity_reference UUID, -- Reference to habit log or activity
+    verification_status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
+    verification_method ENUM('automatic', 'ai_verified', 'manual_review') DEFAULT 'automatic',
+    verification_metadata JSON,
+    transaction_hash VARCHAR(64), -- Blockchain-style verification
+    exchange_rate DECIMAL(10,6), -- KC to USD rate at time of transaction
+    usd_value DECIMAL(10,2), -- Monetary value at time of transaction
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    verified_at TIMESTAMP NULL,
+    INDEX idx_user_transactions (user_id, created_at),
+    INDEX idx_verification_status (verification_status),
+    INDEX idx_transaction_type (transaction_type, created_at)
+);
+
+CREATE TABLE carbon_credit_redemptions (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    transaction_id UUID REFERENCES carbon_credit_transactions(id),
+    redemption_type ENUM('cash_out', 'carbon_offset', 'donation', 'marketplace') NOT NULL,
+    amount_kc DECIMAL(12,4) NOT NULL,
+    amount_usd DECIMAL(10,2) NOT NULL,
+    recipient_info JSON, -- Payment details, offset certificate info, etc.
+    status ENUM('pending', 'processing', 'completed', 'failed') DEFAULT 'pending',
+    external_reference VARCHAR(255), -- Payment processor reference
+    completed_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_redemptions (user_id, created_at),
+    INDEX idx_status (status)
+);
+
+CREATE TABLE carbon_verification_rules (
+    id UUID PRIMARY KEY,
+    activity_type VARCHAR(100) NOT NULL,
+    min_amount DECIMAL(8,4), -- Minimum CO2 saved for automatic verification
+    max_amount DECIMAL(8,4), -- Maximum for automatic verification
+    verification_method ENUM('automatic', 'ai_required', 'manual_required') NOT NULL,
+    credit_multiplier DECIMAL(4,2) DEFAULT 1.0, -- Bonus/penalty multiplier
+    requires_evidence BOOLEAN DEFAULT FALSE,
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_activity_type (activity_type)
 );
 ```
 

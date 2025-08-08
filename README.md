@@ -7,7 +7,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 [![TiDB](https://img.shields.io/badge/TiDB-Cloud-orange.svg)](https://tidbcloud.com/)
 
-Klymate AI is a comprehensive carbon footprint tracking platform that combines habit monitoring with AI-powered coaching to help users reduce their environmental impact. Built with modern technologies and designed for scalability, it provides personalized recommendations, gamification features, and detailed analytics to make sustainability engaging and achievable.
+Klymate AI is a comprehensive carbon footprint tracking platform that combines habit monitoring with AI-powered coaching to help users reduce their environmental impact. Built with modern technologies and designed for scalability, it provides personalized recommendations, gamification features, **real carbon credits with monetary value**, and detailed analytics to make sustainability both engaging and financially rewarding.
 
 ## ✨ Features
 
@@ -27,10 +27,18 @@ Klymate AI is a comprehensive carbon footprint tracking platform that combines h
 - **Leaderboards**: Friendly competition with eco-scores and rankings
 - **Challenge Participation**: Join community challenges for extra motivation
 
+### � **Carabon Credits System**
+- **Earn Real Credits**: Get Klymate Credits (KC) for verified carbon reduction activities
+- **Monetary Conversion**: Convert credits to cash rewards or carbon offset certificates
+- **Transparent Verification**: Multi-level verification with blockchain-style transaction records
+- **Market Integration**: Real-time carbon market rates and corporate partnership opportunities
+- **Multiple Redemption Options**: Cash out, purchase carbon offsets, or donate to climate causes
+
 ### 📊 **Advanced Analytics**
 - **Dashboard Insights**: Visual representation of your carbon footprint trends
 - **Goal Tracking**: Set and monitor personalized reduction targets
 - **Comparative Analysis**: See how your efforts stack up against benchmarks
+- **Credit Analytics**: Track your carbon credit earnings and redemption history
 
 ## 🏗️ Architecture
 
@@ -138,6 +146,14 @@ GET  /ai/suggestions   # Get personalized tips
 ```http
 GET  /gamification/badges      # Get user badges
 GET  /gamification/leaderboard # Get leaderboard
+```
+
+### Carbon Credits
+```http
+GET  /credits/balance          # Get current credit balance
+GET  /credits/transactions     # Get credit transaction history
+POST /credits/redeem          # Redeem credits for cash/offsets
+GET  /credits/rates           # Get current exchange rates
 ```
 
 Full API documentation is available at `/docs` when running the server.

@@ -130,3 +130,30 @@ The Klymate AI Backend Development project aims to build a comprehensive, scalab
 5. WHEN the database is accessed THEN it SHALL use SQLAlchemy for async ORM operations
 6. WHEN performance optimization is needed THEN composite indexes SHALL be created for analytics and frequent queries
 7. WHEN distributed database scaling is required THEN TiDB's distributed architecture SHALL provide horizontal scaling capabilities
+
+### Requirement 11
+
+**User Story:** As a user, I want to earn carbon credits for my verified carbon reduction activities, so that I can be financially rewarded for my environmental efforts and contribute to climate action.
+
+#### Acceptance Criteria
+
+1. WHEN a user logs carbon-reducing activities THEN the system SHALL calculate and award Klymate Credits (KC) based on verified CO2 savings
+2. WHEN carbon credits are calculated THEN they SHALL use standardized carbon accounting methodologies and conversion rates
+3. WHEN credits are awarded THEN they SHALL be stored with immutable transaction records for transparency and auditability
+4. WHEN users view their credits THEN they SHALL see current balance, earning history, and potential monetary value
+5. WHEN credits reach minimum thresholds THEN users SHALL be able to request conversion to monetary rewards or carbon offset certificates
+6. WHEN credit transactions occur THEN they SHALL be logged with blockchain-style verification for authenticity
+7. WHEN corporate partnerships exist THEN the system SHALL support bulk credit purchases from verified user activities
+
+### Requirement 12
+
+**User Story:** As a platform administrator, I want to manage carbon credit exchange rates and verification processes, so that the credit system maintains integrity and market value.
+
+#### Acceptance Criteria
+
+1. WHEN credit rates are set THEN the system SHALL use real-time carbon market data to determine KC to USD conversion rates
+2. WHEN activities are verified THEN the system SHALL implement multi-level verification including AI analysis and manual review for high-value credits
+3. WHEN credits are issued THEN they SHALL include metadata about verification method, carbon calculation source, and activity type
+4. WHEN fraud detection is needed THEN the system SHALL flag suspicious patterns and require additional verification
+5. WHEN market integration occurs THEN the system SHALL connect with carbon offset marketplaces and corporate sustainability programs
+6. WHEN regulatory compliance is required THEN the system SHALL maintain audit trails and reporting capabilities for carbon credit authorities

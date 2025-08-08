@@ -164,11 +164,32 @@
   - Implement deployment health checks and rollback procedures
   - _Requirements: 9.2, 9.3_
 
-- [ ] 12. Final integration and system testing
-  - Perform end-to-end testing of complete user workflows
+- [ ] 12. Implement carbon credits system
+- [ ] 12.1 Create carbon credits data models and verification system
+  - Design CarbonCreditTransaction and UserCarbonCredits SQLAlchemy models
+  - Create database migrations for carbon credits tables
+  - Implement verification rules and rate management system
+  - Build CarbonCreditsRepository for credit operations
+  - Create seed data for initial credit rates and verification rules
+  - Write unit tests for carbon credits models and calculations
+  - _Requirements: 11.1, 11.2, 11.3, 11.6, 12.1, 12.2, 12.3_
+
+- [ ] 12.2 Build carbon credits service and API endpoints
+  - Implement CarbonCreditsService for credit calculations and verification
+  - Create credit earning logic based on verified carbon savings
+  - Build redemption system for cash-out and carbon offset purchases
+  - Add carbon credits API endpoints (balance, transactions, redemption)
+  - Implement real-time rate updates from carbon market APIs
+  - Integrate credit earning with habit logging workflow
+  - Write integration tests for carbon credits functionality
+  - _Requirements: 11.1, 11.2, 11.4, 11.5, 11.7, 12.4, 12.5, 12.6_
+
+- [ ] 13. Final integration and system testing
+  - Perform end-to-end testing of complete user workflows including carbon credits
   - Validate AI coaching functionality with real conversations
   - Test gamification features with multiple user scenarios
-  - Verify analytics and reporting accuracy
+  - Verify carbon credits earning, verification, and redemption processes
+  - Test analytics and reporting accuracy including credit metrics
   - Conduct performance testing with simulated load
   - Document API endpoints and create usage examples
   - _Requirements: All requirements final validation_
