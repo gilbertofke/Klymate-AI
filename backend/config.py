@@ -20,30 +20,30 @@ class Settings(BaseSettings):
     debug: bool = Field(default=False, env="DEBUG")
     
     # Database Configuration
-    database_url: str = Field(..., env="DATABASE_URL")
-    tidb_host: str = Field(..., env="TIDB_HOST")
+    database_url: str = Field(default="sqlite:///test.db", env="DATABASE_URL")
+    tidb_host: str = Field(default="localhost", env="TIDB_HOST")
     tidb_port: int = Field(default=4000, env="TIDB_PORT")
-    tidb_user: str = Field(..., env="TIDB_USER")
-    tidb_password: str = Field(..., env="TIDB_PASSWORD")
-    tidb_database: str = Field(..., env="TIDB_DATABASE")
+    tidb_user: str = Field(default="test_user", env="TIDB_USER")
+    tidb_password: str = Field(default="test_password", env="TIDB_PASSWORD")
+    tidb_database: str = Field(default="test_db", env="TIDB_DATABASE")
     
     # Firebase Configuration
-    firebase_project_id: str = Field(..., env="FIREBASE_PROJECT_ID")
-    firebase_private_key_id: str = Field(..., env="FIREBASE_PRIVATE_KEY_ID")
-    firebase_private_key: str = Field(..., env="FIREBASE_PRIVATE_KEY")
-    firebase_client_email: str = Field(..., env="FIREBASE_CLIENT_EMAIL")
-    firebase_client_id: str = Field(..., env="FIREBASE_CLIENT_ID")
-    firebase_auth_uri: str = Field(..., env="FIREBASE_AUTH_URI")
-    firebase_token_uri: str = Field(..., env="FIREBASE_TOKEN_URI")
+    firebase_project_id: str = Field(default="test-project", env="FIREBASE_PROJECT_ID")
+    firebase_private_key_id: str = Field(default="test-key-id", env="FIREBASE_PRIVATE_KEY_ID")
+    firebase_private_key: str = Field(default="-----BEGIN PRIVATE KEY-----\ntest-key\n-----END PRIVATE KEY-----", env="FIREBASE_PRIVATE_KEY")
+    firebase_client_email: str = Field(default="test@test-project.iam.gserviceaccount.com", env="FIREBASE_CLIENT_EMAIL")
+    firebase_client_id: str = Field(default="test-client-id", env="FIREBASE_CLIENT_ID")
+    firebase_auth_uri: str = Field(default="https://accounts.google.com/o/oauth2/auth", env="FIREBASE_AUTH_URI")
+    firebase_token_uri: str = Field(default="https://oauth2.googleapis.com/token", env="FIREBASE_TOKEN_URI")
     
     # JWT Configuration
-    jwt_secret_key: str = Field(..., env="JWT_SECRET_KEY")
+    jwt_secret_key: str = Field(default="test-secret-key-for-development-only", env="JWT_SECRET_KEY")
     jwt_algorithm: str = Field(default="HS256", env="JWT_ALGORITHM")
     jwt_access_token_expire_minutes: int = Field(default=30, env="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
     jwt_refresh_token_expire_days: int = Field(default=7, env="JWT_REFRESH_TOKEN_EXPIRE_DAYS")
     
     # OpenAI Configuration
-    openai_api_key: str = Field(..., env="OPENAI_API_KEY")
+    openai_api_key: str = Field(default="test-openai-key", env="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-3.5-turbo", env="OPENAI_MODEL")
     openai_embedding_model: str = Field(default="text-embedding-ada-002", env="OPENAI_EMBEDDING_MODEL")
     

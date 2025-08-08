@@ -38,7 +38,7 @@ class TestFirebaseAuth:
         # Arrange
         mock_get_app.return_value = Mock()
         from firebase_admin.auth import ExpiredIdTokenError
-        mock_verify_token.side_effect = ExpiredIdTokenError('Token expired')
+        mock_verify_token.side_effect = ExpiredIdTokenError('Token expired', None)
         
         # Act & Assert
         with pytest.raises(FirebaseAuthError, match="Token has expired"):
@@ -51,7 +51,7 @@ class TestFirebaseAuth:
         # Arrange
         mock_get_app.return_value = Mock()
         from firebase_admin.auth import InvalidIdTokenError
-        mock_verify_token.side_effect = InvalidIdTokenError('Invalid token')
+        mock_verify_token.side_effect = InvalidIdTokenError('Invalid token', None)
         
         # Act & Assert
         with pytest.raises(FirebaseAuthError, match="Invalid token"):
