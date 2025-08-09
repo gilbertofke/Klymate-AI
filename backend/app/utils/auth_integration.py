@@ -7,8 +7,8 @@ with JWT tokens for the Klymate AI backend.
 
 import logging
 from typing import Optional, Dict, Any, Tuple
-from backend.utils.firebase_auth import FirebaseAuth, FirebaseAuthError
-from backend.utils.jwt_handler import JWTHandler, JWTError
+from app.utils.firebase_auth import FirebaseAuth, FirebaseAuthError
+from app.utils.jwt_handler import JWTHandler, JWTError
 
 logger = logging.getLogger(__name__)
 

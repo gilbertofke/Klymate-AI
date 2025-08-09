@@ -12,10 +12,9 @@ import sys
 import os
 
 # Import Tangus's comprehensive authentication system
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../..'))
-from backend.utils.auth_integration import AuthIntegration
-from backend.utils.firebase_auth import FirebaseAuthError
-from backend.utils.jwt_handler import JWTError
+from app.utils.auth_integration import AuthIntegration
+from app.utils.firebase_auth import FirebaseAuthError
+from app.utils.jwt_handler import JWTError
 from app.core.middleware import get_current_user
 
 router = APIRouter()

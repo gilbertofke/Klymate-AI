@@ -10,7 +10,7 @@ import logging
 from typing import Optional, Dict, Any
 import firebase_admin
 from firebase_admin import credentials, auth
-from backend.config import settings
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -32,15 +32,15 @@ class FirebaseConfig:
             # Create service account credentials from environment variables
             service_account_info = {
                 "type": "service_account",
-                "project_id": settings.firebase_project_id,
-                "private_key_id": settings.firebase_private_key_id,
-                "private_key": settings.firebase_private_key.replace('\\n', '\n'),
-                "client_email": settings.firebase_client_email,
-                "client_id": settings.firebase_client_id,
-                "auth_uri": settings.firebase_auth_uri,
-                "token_uri": settings.firebase_token_uri,
+                "project_id": settings.FIREBASE_PROJECT_ID,
+                "private_key_id": settings.FIREBASE_PRIVATE_KEY_ID,
+                "private_key": settings.FIREBASE_PRIVATE_KEY.replace('\\n', '\n'),
+                "client_email": settings.FIREBASE_CLIENT_EMAIL,
+                "client_id": settings.FIREBASE_CLIENT_ID,
+                "auth_uri": settings.FIREBASE_AUTH_URI,
+                "token_uri": settings.FIREBASE_TOKEN_URI,
                 "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_x509_cert_url": f"https://www.googleapis.com/robot/v1/metadata/x509/{settings.firebase_client_email}"
+                "client_x509_cert_url": f"https://www.googleapis.com/robot/v1/metadata/x509/{settings.FIREBASE_CLIENT_EMAIL}"
             }
             
             # Initialize Firebase Admin SDK

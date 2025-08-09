@@ -9,7 +9,7 @@ import logging
 from typing import Optional, Dict, Any
 from firebase_admin import auth
 from firebase_admin.auth import UserRecord, InvalidIdTokenError, ExpiredIdTokenError
-from backend.utils.firebase_config import FirebaseConfig
+from app.utils.firebase_config import FirebaseConfig
 
 logger = logging.getLogger(__name__)
 

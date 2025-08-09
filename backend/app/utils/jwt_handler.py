@@ -9,7 +9,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 import jwt
-from backend.config import settings
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class JWTHandler:
         try:
             # Set token expiration
             expires_at = datetime.utcnow() + timedelta(
-                minutes=settings.jwt_access_token_expire_minutes
+                minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
             )
             
             # Create token payload
@@ -56,8 +56,8 @@ class JWTHandler:
             # Generate token
             token = jwt.encode(
                 payload,
-                settings.jwt_secret_key,
-                algorithm=settings.jwt_algorithm
+                settings.JWT_SECRET_KEY,
+                algorithm=settings.JWT_ALGORITHM
             )
             
             logger.info(f"Access token generated for user: {user_data.get('email')}")
@@ -84,7 +84,7 @@ class JWTHandler:
         try:
             # Set token expiration
             expires_at = datetime.utcnow() + timedelta(
-                days=settings.jwt_refresh_token_expire_days
+                days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS
             )
             
             # Create token payload
@@ -101,8 +101,8 @@ class JWTHandler:
             # Generate token
             token = jwt.encode(
                 payload,
-                settings.jwt_secret_key,
-                algorithm=settings.jwt_algorithm
+                settings.JWT_SECRET_KEY,
+                algorithm=settings.JWT_ALGORITHM
             )
             
             logger.info(f"Refresh token generated for user: {user_data.get('email')}")
@@ -131,8 +131,8 @@ class JWTHandler:
             # Decode and verify token
             payload = jwt.decode(
                 token,
-                settings.jwt_secret_key,
-                algorithms=[settings.jwt_algorithm],
+                settings.JWT_SECRET_KEY,
+                algorithms=[settings.JWT_ALGORITHM],
                 issuer="klymate-ai-backend"
             )
             

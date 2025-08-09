@@ -15,7 +15,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from app.main import app
-from backend.utils.auth_integration import AuthIntegration
+from app.utils.auth_integration import AuthIntegration
 
 client = TestClient(app)
 

@@ -14,12 +14,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 # Import our comprehensive authentication system
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
-from backend.utils.auth_integration import AuthIntegration
-from backend.utils.jwt_handler import JWTError
-from backend.utils.firebase_auth import FirebaseAuthError
+from app.utils.auth_integration import AuthIntegration
+from app.utils.jwt_handler import JWTError
+from app.utils.firebase_auth import FirebaseAuthError
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

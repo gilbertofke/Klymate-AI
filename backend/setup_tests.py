@@ -13,13 +13,13 @@ from pathlib import Path
 def check_python_version():
     """Check Python version compatibility."""
     version = sys.version_info
-    print(f"🐍 Python version: {version.major}.{version.minor}.{version.micro}")
+    print(f"Python version: {version.major}.{version.minor}.{version.micro}")
     
     if version.major != 3 or version.minor < 9:
-        print("⚠️  Warning: Python 3.9+ recommended")
+        print("WARNING: Python 3.9+ recommended")
         return False
     
-    print("✅ Python version compatible")
+    print("OK: Python version compatible")
     return True
 
 def check_dependencies():
@@ -36,13 +36,13 @@ def check_dependencies():
     for package in required_packages:
         try:
             __import__(package)
-            print(f"✅ {package} installed")
+            print(f"OK: {package} installed")
         except ImportError:
             missing.append(package)
-            print(f"❌ {package} missing")
+            print(f"MISSING: {package}")
     
     if missing:
-        print(f"\n📦 Install missing packages:")
+        print(f"\nInstall missing packages:")
         print(f"pip install {' '.join(missing)}")
         return False
     
@@ -68,25 +68,25 @@ def check_project_structure():
         'tests/test_jwt_handler.py'
     ]
     
-    print("\n📁 Checking project structure...")
+    print("\nChecking project structure...")
     
     for dir_path in required_dirs:
         full_path = backend_dir / dir_path
         if full_path.exists():
-            print(f"✅ {dir_path}/ exists")
+            print(f"OK: {dir_path}/ exists")
         else:
-            print(f"❌ {dir_path}/ missing")
+            print(f"MISSING: {dir_path}/ missing")
     
     for file_path in required_files:
         full_path = backend_dir / file_path
         if full_path.exists():
-            print(f"✅ {file_path} exists")
+            print(f"OK: {file_path} exists")
         else:
-            print(f"❌ {file_path} missing")
+            print(f"MISSING: {file_path} missing")
 
 def test_imports():
     """Test if critical imports work."""
-    print("\n🔍 Testing imports...")
+    print("\nTesting imports...")
     
     # Add backend to path
     backend_dir = Path(__file__).parent
@@ -94,21 +94,21 @@ def test_imports():
     
     try:
         from utils.firebase_auth import FirebaseAuth
-        print("✅ Firebase auth import successful")
+        print("OK: Firebase auth import successful")
     except Exception as e:
-        print(f"❌ Firebase auth import failed: {e}")
+        print(f"ERROR: Firebase auth import failed: {e}")
     
     try:
         from utils.jwt_handler import JWTHandler
-        print("✅ JWT handler import successful")
+        print("OK: JWT handler import successful")
     except Exception as e:
-        print(f"❌ JWT handler import failed: {e}")
+        print(f"ERROR: JWT handler import failed: {e}")
     
     try:
         from app.main import app
-        print("✅ FastAPI app import successful")
+        print("OK: FastAPI app import successful")
     except Exception as e:
-        print(f"❌ FastAPI app import failed: {e}")
+        print(f"ERROR: FastAPI app import failed: {e}")
 
 def main():
     """Run all checks."""

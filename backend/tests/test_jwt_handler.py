@@ -14,13 +14,8 @@ from pathlib import Path
 backend_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(backend_dir))
 
-try:
-    from backend.utils.jwt_handler import JWTHandler, JWTError
-    from backend.config import settings
-except ImportError:
-    # Fallback for different environments
-    from utils.jwt_handler import JWTHandler, JWTError
-    from config import settings
+from app.utils.jwt_handler import JWTHandler, JWTError
+from app.core.config import settings
 
 
 class TestJWTHandler:
@@ -45,8 +40,8 @@ class TestJWTHandler:
         # Decode token to verify contents
         decoded = jwt.decode(
             token,
-            settings.jwt_secret_key,
-            algorithms=[settings.jwt_algorithm]
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM]
         )
         assert decoded['user_id'] == 'test_user_id'
         assert decoded['firebase_uid'] == 'test_firebase_uid'
@@ -73,8 +68,8 @@ class TestJWTHandler:
         # Decode token to verify contents
         decoded = jwt.decode(
             token,
-            settings.jwt_secret_key,
-            algorithms=[settings.jwt_algorithm]
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM]
         )
         assert decoded['user_id'] == 'test_user_id'
         assert decoded['firebase_uid'] == 'test_firebase_uid'
@@ -139,8 +134,8 @@ class TestJWTHandler:
         
         expired_token = jwt.encode(
             payload,
-            settings.jwt_secret_key,
-            algorithm=settings.jwt_algorithm
+            settings.JWT_SECRET_KEY,
+            algorithm=settings.JWT_ALGORITHM
         )
         
         # Act & Assert
