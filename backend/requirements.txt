@@ -6,15 +6,14 @@ python-multipart==0.0.6
 # Database and ORM
 sqlalchemy[asyncio]==2.0.23
 alembic==1.12.1
-asyncpg==0.30.0
+aiomysql==0.2.0
+pymysql==1.1.1
 tidb-vector==0.0.9
 
 # Environment and configuration
 python-dotenv==1.0.0
-<<<<<<< HEAD
 pydantic==2.9.2
 pydantic-settings==2.6.1
-=======
 
 # Authentication
 firebase-admin==6.2.0
@@ -23,27 +22,24 @@ passlib[bcrypt]==1.7.4
 PyJWT==2.8.0
 
 # AI and ML
-<<<<<<< HEAD
 langchain==0.3.10
 langchain-openai==0.2.14
 openai==1.51.2
 tiktoken==0.8.0
-=======
 
 # Caching
 redis==5.0.1
-hiredis==3.1.0   # bumped for Python 3.13 wheel support
+hiredis==3.1.0
 
 # HTTP client
 httpx==0.25.2
 
-## Testing (development)
+# Testing (development)
 pytest==7.4.3
 pytest-asyncio==0.21.1
 pytest-mock==3.12.0
 factory-boy==3.3.0
-coverage==7.6.1   # bumped for Python 3.13 support
-
+coverage==7.6.1
 
 # Development tools
 black==23.11.0

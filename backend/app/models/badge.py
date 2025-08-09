@@ -1,27 +1,11 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from .base import Base, TimestampMixin
+"""
+Badge Models - Placeholder for Task 8: Gamification System
 
-class Badge(Base, TimestampMixin):
-    __tablename__ = "badges"
+This file will be implemented in Task 8.
+For now, it's a placeholder to avoid import errors.
+"""
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255))
-    description = Column(String(500))
-    criteria = Column(String(500))  # JSON string of achievement criteria
-    image_url = Column(String(255))
-    
-    # Relationships
-    user_badges = relationship("UserBadge", back_populates="badge")
-
-class UserBadge(Base, TimestampMixin):
-    __tablename__ = "user_badges"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    badge_id = Column(Integer, ForeignKey("badges.id"))
-    earned_date = Column(DateTime, nullable=False, default=func.now())
-    
-    # Relationships
-    user = relationship("User", back_populates="badges")
-    badge = relationship("Badge", back_populates="user_badges")
+# TODO: Implement in Task 8 - Gamification System
+# - Badge model for achievement definitions
+# - UserBadge model for user achievements
+# - Badge criteria evaluation system

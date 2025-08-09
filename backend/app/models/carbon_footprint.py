@@ -1,17 +1,11 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date
-from sqlalchemy.orm import relationship
-from .base import Base, TimestampMixin
+"""
+Carbon Footprint Models - Placeholder for Task 6: Habit Tracking
 
-class CarbonFootprint(Base, TimestampMixin):
-    __tablename__ = "carbon_footprints"
+This file will be implemented in Task 6.
+For now, it's a placeholder to avoid import errors.
+"""
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    habit_id = Column(Integer, ForeignKey("habits.id"))
-    date = Column(Date)
-    carbon_value = Column(Float)  # CO2 in kg
-    notes = Column(String(500))
-    
-    # Relationships
-    user = relationship("User", back_populates="footprints")
-    habit = relationship("Habit", back_populates="footprints")
+# TODO: Implement in Task 6 - Habit Tracking System
+# - CarbonFootprint model for tracking CO2 impact
+# - Integration with habit logging
+# - Carbon savings calculations

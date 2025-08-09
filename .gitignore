@@ -118,3 +118,9 @@ frontend/build/
 # Temporary files
 *.tmp
 *.temp
+
+# Team documentation (private)
+backend/team-docs/
+backend/.env.hackathon
+backend/ca-cert.pem
+backend/create_team_databases.py
