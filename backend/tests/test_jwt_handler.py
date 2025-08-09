@@ -8,9 +8,19 @@ from unittest.mock import patch
 import jwt
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from backend.utils.jwt_handler import JWTHandler, JWTError
-from backend.config import settings
+from pathlib import Path
+
+# Add backend to path for imports
+backend_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(backend_dir))
+
+try:
+    from backend.utils.jwt_handler import JWTHandler, JWTError
+    from backend.config import settings
+except ImportError:
+    # Fallback for different environments
+    from utils.jwt_handler import JWTHandler, JWTError
+    from config import settings
 
 
 class TestJWTHandler:

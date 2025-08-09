@@ -6,9 +6,19 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from backend.utils.firebase_auth import FirebaseAuth, FirebaseAuthError
-from backend.utils.firebase_config import FirebaseConfig
+from pathlib import Path
+
+# Add backend to path for imports
+backend_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(backend_dir))
+
+try:
+    from backend.utils.firebase_auth import FirebaseAuth, FirebaseAuthError
+    from backend.utils.firebase_config import FirebaseConfig
+except ImportError:
+    # Fallback for different environments
+    from utils.firebase_auth import FirebaseAuth, FirebaseAuthError
+    from utils.firebase_config import FirebaseConfig
 
 
 class TestFirebaseAuth:
