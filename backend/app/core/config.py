@@ -1,32 +1,36 @@
 from pydantic_settings import BaseSettings
-from functools import lru_cache
-from typing import Optional
+from pydantic import ConfigDict
 
 class Settings(BaseSettings):
-    # Base API Settings
+    # API Settings
     PROJECT_NAME: str = "Klymate-AI"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
-    
-    # Database Settings
-    TIDB_HOST: str = "localhost"
-    TIDB_PORT: int = 4000
-    TIDB_USER: str = ""
-    TIDB_PASSWORD: str = ""
-    TIDB_DATABASE: str = "klymate_ai"
-    
-    # Firebase Settings
-    FIREBASE_CREDENTIALS_PATH: str = ""
+    SECRET_KEY: str = "your-secret-key-here"  # Change this in production
     
     # Environment Settings
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
+    
+    # Firebase Settings
+    FIREBASE_CREDENTIALS_PATH: str = "path/to/your/firebase-credentials.json"
+    
+    # Database Settings
+    TIDB_HOST: str = "localhost"
+    TIDB_PORT: int = 4000
+    TIDB_USER: str = "root"
+    TIDB_PASSWORD: str = ""
+    TIDB_DATABASE: str = "klymate_ai"
 
-    class Config:
-        env_file = ".env"
+    # JWT Settings
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    model_config = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="allow"
+    )
 
-@lru_cache()
-def get_settings() -> Settings:
-    return Settings()
-
-settings = get_settings()
+settings = Settings()

@@ -6,8 +6,8 @@ import pytest
 from datetime import datetime, timedelta
 from unittest.mock import patch
 import jwt
-from backend.utils.jwt_handler import JWTHandler, JWTError
-from backend.config import settings
+from app.utils.jwt_handler import JWTHandler, JWTError
+from app.core.config import settings
 
 
 class TestJWTHandler:
