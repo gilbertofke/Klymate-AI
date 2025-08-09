@@ -4,8 +4,11 @@ Unit tests for Firebase authentication utilities.
 
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from app.utils.firebase_auth import FirebaseAuth, FirebaseAuthError
-from app.utils.firebase_config import FirebaseConfig
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from backend.utils.firebase_auth import FirebaseAuth, FirebaseAuthError
+from backend.utils.firebase_config import FirebaseConfig
 
 
 class TestFirebaseAuth:
