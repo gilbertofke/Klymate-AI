@@ -34,6 +34,15 @@ class TokenRefreshRequest(BaseModel):
     """Request model for token refresh."""
     refresh_token: str
 
+class PasswordResetRequest(BaseModel):
+    """Request model for password reset."""
+    email: EmailStr
+
+class PasswordResetResponse(BaseModel):
+    """Response model for password reset."""
+    message: str
+    success: bool
+
 class UserProfileResponse(BaseModel):
     """Response model for user profile."""
     user_id: str
@@ -165,6 +174,37 @@ async def get_user_profile(current_user: Dict[str, Any] = Depends(get_current_us
         firebase_uid=current_user["firebase_uid"],
         email=current_user["email"]
     )
+
+@router.post("/password-reset", response_model=PasswordResetResponse)
+async def request_password_reset(request: PasswordResetRequest):
+    """
+    Request password reset email via Firebase.
+    
+    This endpoint triggers Firebase to send a password reset email
+    to the user's registered email address.
+    """
+    try:
+        # Use Firebase's password reset functionality
+        success = AuthIntegration.request_password_reset(request.email)
+        
+        if success:
+            return PasswordResetResponse(
+                message="Password reset email sent successfully",
+                success=True
+            )
+        else:
+            # For security, we don't reveal if email exists or not
+            return PasswordResetResponse(
+                message="If the email exists in our system, a password reset link has been sent",
+                success=True
+            )
+            
+    except Exception as e:
+        # For security, we don't reveal specific errors
+        return PasswordResetResponse(
+            message="If the email exists in our system, a password reset link has been sent",
+            success=True
+        )
 
 @router.post("/logout")
 async def logout_user(current_user: Dict[str, Any] = Depends(get_current_user)):

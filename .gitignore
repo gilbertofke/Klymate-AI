@@ -119,8 +119,15 @@ frontend/build/
 *.tmp
 *.temp
 
-# Team documentation (private)
-backend/team-docs/
+# Team documentation (private - contains credentials)
+backend/team-docs/TEAM_*.md
+backend/team-docs/README.md
+backend/team-docs/HACKATHON_SETUP.md
 backend/.env.hackathon
 backend/ca-cert.pem
 backend/create_team_databases.py
+
+# Keep public architecture guides
+!backend/team-docs/FRONTEND_ARCHITECTURE_GUIDE.md
+!backend/team-docs/BLOCKCHAIN_CARBON_CREDITS_PLAN.md
+!backend/team-docs/PASSWORD_SECURITY_SUMMARY.md
