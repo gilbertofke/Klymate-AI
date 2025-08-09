@@ -13,7 +13,8 @@
   - Configure .env file structure and add to .gitignore
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 3.1, 3.2, 3.3, 3.4, 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 2. Implement core FastAPI application structure
+- [x] 2. Implement core FastAPI application structure
+
   - Create FastAPI application instance in main.py with proper configuration
   - Set up environment variable loading for database and API configurations
   - Implement basic health check endpoint for deployment verification
@@ -40,7 +41,9 @@
   - Write unit tests for authentication utilities
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 4.2 Build authentication middleware and routes
+- [x] 4.2 Build authentication middleware and routes
+
+
   - Create authentication middleware for protected routes
   - Implement user registration endpoint with Firebase integration
   - Build login endpoint with JWT token generation

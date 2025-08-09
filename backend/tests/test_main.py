@@ -7,17 +7,19 @@ def test_read_main():
     """Test the main endpoint."""
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {
-        "message": "Welcome to Klymate-AI API",
-        "version": "1.0.0",
-        "status": "active"
-    }
+    data = response.json()
+    assert data["message"] == "Welcome to Klymate-AI API"
+    assert data["version"] == "1.0.0"
+    assert data["status"] == "active"
+    assert "features" in data
+    assert "docs" in data
 
 def test_health_check():
     """Test the health check endpoint."""
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {
-        "status": "healthy",
-        "service": "Klymate-AI API"
-    }
+    data = response.json()
+    assert data["status"] == "healthy"
+    assert data["service"] == "Klymate-AI"
+    assert "version" in data
+    assert "environment" in data
