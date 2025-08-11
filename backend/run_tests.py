@@ -24,14 +24,15 @@ def setup_environment():
     # Set environment variables
     os.environ['PYTHONPATH'] = f"{backend_dir}{os.pathsep}{project_root}"
     
-    print("🔧 Environment setup complete")
+    # Replace emoji with plain text to avoid encoding issues
+    print("[INFO] Environment setup complete")
     print(f"   Backend dir: {backend_dir}")
     print(f"   Project root: {project_root}")
     print(f"   Python path: {os.environ.get('PYTHONPATH', 'Not set')}")
 
 def run_tests():
     """Run the test suite."""
-    print("\n🧪 Running Klymate AI Backend Tests...")
+    print("\n[INFO] Running Klymate AI Backend Tests...")
     
     # Run pytest with proper configuration
     cmd = [
@@ -56,6 +57,6 @@ if __name__ == "__main__":
     if exit_code == 0:
         print("\n✅ All tests passed!")
     else:
-        print(f"\n❌ Tests failed with exit code: {exit_code}")
+        print(f"\n[ERROR] Tests failed with exit code: {exit_code}")
     
     sys.exit(exit_code)
