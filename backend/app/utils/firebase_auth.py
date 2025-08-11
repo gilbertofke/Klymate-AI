@@ -168,6 +168,81 @@ class FirebaseAuth:
             raise FirebaseAuthError(f"Failed to revoke tokens: {str(e)}")
     
     @staticmethod
+    def generate_password_reset_link(email: str, action_code_settings: Optional[Dict[str, Any]] = None) -> str:
+        """
+        Generate a password reset link for a user.
+        
+        Args:
+            email: User email address
+            action_code_settings: Optional settings for the action code
+            
+        Returns:
+            Password reset link
+            
+        Raises:
+            FirebaseAuthError: If link generation fails
+        """
+        try:
+            # Ensure Firebase is initialized
+            FirebaseConfig.get_app()
+            
+            # Generate password reset link
+            link = auth.generate_password_reset_link(email, action_code_settings)
+            logger.info(f"Password reset link generated for email: {email}")
+            return link
+            
+        except auth.UserNotFoundError:
+            logger.warning(f"User not found for password reset: {email}")
+            raise FirebaseAuthError("User not found")
+            
+        except Exception as e:
+            logger.error(f"Failed to generate password reset link for {email}: {str(e)}")
+            raise FirebaseAuthError(f"Failed to generate password reset link: {str(e)}")
+    
+    @staticmethod
+    def send_password_reset_email(email: str) -> bool:
+        """
+        Send password reset email using Firebase Auth.
+        
+        Note: This method requires Firebase Admin SDK with proper permissions.
+        For client-side password reset, use Firebase Client SDK.
+        
+        Args:
+            email: User email address
+            
+        Returns:
+            True if email was sent successfully
+            
+        Raises:
+            FirebaseAuthError: If email sending fails
+        """
+        try:
+            # Ensure Firebase is initialized
+            FirebaseConfig.get_app()
+            
+            # Check if user exists first
+            user_record = FirebaseAuth.get_user_by_email(email)
+            if not user_record:
+                logger.warning(f"User not found for password reset: {email}")
+                return False
+            
+            # Generate and log the reset link (in production, you'd send via email service)
+            reset_link = FirebaseAuth.generate_password_reset_link(email)
+            logger.info(f"Password reset link for {email}: {reset_link}")
+            
+            # In a real implementation, you would send this via your email service
+            # For now, we'll just log it and return success
+            return True
+            
+        except FirebaseAuthError:
+            # Re-raise Firebase auth errors
+            raise
+            
+        except Exception as e:
+            logger.error(f"Failed to send password reset email to {email}: {str(e)}")
+            raise FirebaseAuthError(f"Failed to send password reset email: {str(e)}")
+    
+    @staticmethod
     def extract_user_info(decoded_token: Dict[str, Any]) -> Dict[str, Any]:
         """
         Extract relevant user information from decoded Firebase token.

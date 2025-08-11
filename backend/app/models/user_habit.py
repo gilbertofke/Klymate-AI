@@ -7,7 +7,8 @@ Aligned with Task 5 BaseModel foundation and design document.
 
 from datetime import date
 from decimal import Decimal
-from sqlalchemy import Column, Integer, ForeignKey, Text, Decimal as SQLDecimal, Date
+from sqlalchemy import Column, Integer, ForeignKey, Text, Date
+from sqlalchemy.types import DECIMAL as SQLDecimal
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel, TimestampMixin, SoftDeleteMixin, AuditMixin
 

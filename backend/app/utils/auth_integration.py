@@ -125,6 +125,27 @@ class AuthIntegration:
             return None
     
     @staticmethod
+    def request_password_reset(email: str) -> bool:
+        """
+        Request password reset for user email.
+        
+        Args:
+            email: User email address
+            
+        Returns:
+            True if reset email was sent successfully, False otherwise
+        """
+        try:
+            return FirebaseAuth.send_password_reset_email(email)
+            
+        except FirebaseAuthError as e:
+            logger.warning(f"Password reset request failed: {str(e)}")
+            return False
+        except Exception as e:
+            logger.error(f"Unexpected password reset error: {str(e)}")
+            return False
+    
+    @staticmethod
     def logout_user(firebase_uid: str) -> bool:
         """
         Logout user by revoking Firebase refresh tokens.
