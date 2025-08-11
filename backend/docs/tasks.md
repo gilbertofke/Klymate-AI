@@ -34,7 +34,7 @@
   - Implement database session management with dependency injection
   - _Requirements: 10.1, 10.4, 10.5, 10.6_
 
-- [ ] 4. Implement user authentication system
+- [x] 4. Implement user authentication system
 - [x] 4.1 Create Firebase Admin SDK integration
 
 
@@ -56,8 +56,8 @@
   - Write integration tests for authentication flow
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 5. Create user data models and repository
-- [ ] 5.1 Implement User model and database schema
+- [x] 5. Create user data models and repository
+- [x] 5.1 Implement User model and database schema
   - Create User SQLAlchemy model with all required fields
   - Define user onboarding data structure for survey responses
   - Implement user validation using Pydantic models
@@ -65,7 +65,7 @@
   - Write unit tests for User model validation
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 10.2_
 
-- [ ] 5.2 Build User repository and service layer
+- [x] 5.2 Build User repository and service layer
   - Implement UserRepository with CRUD operations
   - Create UserService for business logic (registration, profile updates)
   - Add baseline carbon footprint calculation logic
