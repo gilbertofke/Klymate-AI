@@ -431,3 +431,144 @@ class UserRepository(BaseRepository[User]):
         except Exception as e:
             logger.error(f"Error getting users needing onboarding: {str(e)}")
             raise
+    
+    async def get_top_users_by_eco_score(self, limit: int = 50) -> List[User]:
+        """
+        Get top users by eco score for leaderboard.
+        
+        Args:
+            limit: Maximum number of users to return
+            
+        Returns:
+            List of User instances ordered by eco score (highest first)
+        """
+        try:
+            query = (
+                select(User)
+                .where(and_(
+                    User.is_active == True,
+                    User.is_deleted == False,
+                    User.onboarding_completed == True
+                ))
+                .order_by(desc(User.eco_score), desc(User.total_co2_saved))
+                .limit(limit)
+            )
+            
+            result = await self.db.execute(query)
+            users = result.scalars().all()
+            
+            logger.debug(f"Retrieved top {len(users)} users by eco score")
+            return list(users)
+            
+        except Exception as e:
+            logger.error(f"Error getting top users by eco score: {str(e)}")
+            raise
+    
+    async def get_users_registered_after(self, start_date: datetime) -> List[User]:
+        """
+        Get users registered after a specific date for cohort analysis.
+        
+        Args:
+            start_date: Start date for user registration
+            
+        Returns:
+            List of User instances registered after the start date
+        """
+        try:
+            query = (
+                select(User)
+                .where(and_(
+                    User.created_at >= start_date,
+                    User.is_deleted == False
+                ))
+                .order_by(User.created_at)
+            )
+            
+            result = await self.db.execute(query)
+            users = result.scalars().all()
+            
+            logger.debug(f"Found {len(users)} users registered after {start_date}")
+            return list(users)
+            
+        except Exception as e:
+            logger.error(f"Error getting users registered after {start_date}: {str(e)}")
+            raise
+    
+    async def get_user_carbon_statistics(self) -> Dict[str, Any]:
+        """
+        Get aggregated carbon footprint statistics across all users.
+        
+        Returns:
+            Dictionary containing carbon statistics
+        """
+        try:
+            # Total CO2 saved across all users
+            total_co2_query = select(func.sum(User.total_co2_saved)).where(
+                User.is_deleted == False
+            )
+            total_co2_result = await self.db.execute(total_co2_query)
+            total_co2_saved = total_co2_result.scalar() or 0
+            
+            # Average eco score
+            avg_eco_score_query = select(func.avg(User.eco_score)).where(
+                and_(
+                    User.eco_score > 0,
+                    User.is_deleted == False
+                )
+            )
+            avg_eco_score_result = await self.db.execute(avg_eco_score_query)
+            avg_eco_score = avg_eco_score_result.scalar() or 0
+            
+            # Users with active streaks
+            active_streaks_query = select(func.count(User.id)).where(
+                and_(
+                    User.current_streak > 0,
+                    User.is_deleted == False
+                )
+            )
+            active_streaks_result = await self.db.execute(active_streaks_query)
+            users_with_streaks = active_streaks_result.scalar() or 0
+            
+            # Average baseline footprint (for users who completed onboarding)
+            avg_baseline_query = select(func.avg(User.baseline_footprint)).where(
+                and_(
+                    User.baseline_footprint.isnot(None),
+                    User.onboarding_completed == True,
+                    User.is_deleted == False
+                )
+            )
+            avg_baseline_result = await self.db.execute(avg_baseline_query)
+            avg_baseline_footprint = avg_baseline_result.scalar() or 0
+            
+            # Average current footprint
+            avg_current_query = select(func.avg(User.current_footprint)).where(
+                and_(
+                    User.current_footprint.isnot(None),
+                    User.onboarding_completed == True,
+                    User.is_deleted == False
+                )
+            )
+            avg_current_result = await self.db.execute(avg_current_query)
+            avg_current_footprint = avg_current_result.scalar() or 0
+            
+            # Calculate average reduction percentage
+            avg_reduction_percentage = 0
+            if avg_baseline_footprint > 0 and avg_current_footprint > 0:
+                avg_reduction_percentage = ((avg_baseline_footprint - avg_current_footprint) / 
+                                          avg_baseline_footprint) * 100
+            
+            statistics = {
+                "total_co2_saved": float(total_co2_saved),
+                "avg_eco_score": float(avg_eco_score),
+                "users_with_active_streaks": users_with_streaks,
+                "avg_baseline_footprint": float(avg_baseline_footprint),
+                "avg_current_footprint": float(avg_current_footprint),
+                "avg_reduction_percentage": round(avg_reduction_percentage, 2)
+            }
+            
+            logger.debug("Retrieved carbon statistics")
+            return statistics
+            
+        except Exception as e:
+            logger.error(f"Error getting carbon statistics: {str(e)}")
+            raise

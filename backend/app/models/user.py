@@ -8,6 +8,7 @@ for the Klymate AI application. Updated to include habit relationships.
 from datetime import datetime
 from typing import Optional, Dict, Any
 import json
+from decimal import Decimal
 from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer
 from sqlalchemy.types import DECIMAL
 from sqlalchemy.orm import relationship
@@ -288,6 +289,11 @@ class User(BaseModel, SoftDeleteMixin, AuditMixin):
         Args:
             increment: Whether to increment or reset the streak
         """
+        if self.current_streak is None:
+            self.current_streak = 0
+        if self.longest_streak is None:
+            self.longest_streak = 0
+            
         if increment:
             self.current_streak += 1
             if self.current_streak > self.longest_streak:
@@ -302,10 +308,12 @@ class User(BaseModel, SoftDeleteMixin, AuditMixin):
         Args:
             co2_saved: Amount of CO2 saved in kg
         """
-        self.total_co2_saved += co2_saved
+        if self.total_co2_saved is None:
+            self.total_co2_saved = Decimal('0')
+        self.total_co2_saved += Decimal(str(co2_saved))
         # Update current footprint (reduce from baseline)
         if self.baseline_footprint:
-            self.current_footprint = max(0, self.baseline_footprint - self.total_co2_saved)
+            self.current_footprint = max(Decimal('0'), Decimal(str(self.baseline_footprint)) - self.total_co2_saved)
     
     def calculate_eco_score(self) -> int:
         """
@@ -316,6 +324,14 @@ class User(BaseModel, SoftDeleteMixin, AuditMixin):
         """
         score = 0
         
+        # Initialize fields if None
+        if self.total_co2_saved is None:
+            self.total_co2_saved = Decimal('0')
+        if self.current_streak is None:
+            self.current_streak = 0
+        if self.eco_score is None:
+            self.eco_score = 0
+        
         # Base score from CO2 savings (1 point per kg CO2 saved)
         score += int(self.total_co2_saved)
         
@@ -324,7 +340,9 @@ class User(BaseModel, SoftDeleteMixin, AuditMixin):
         
         # Footprint reduction bonus
         if self.baseline_footprint and self.current_footprint:
-            reduction_percentage = ((self.baseline_footprint - self.current_footprint) / self.baseline_footprint) * 100
+            baseline = float(self.baseline_footprint)
+            current = float(self.current_footprint)
+            reduction_percentage = ((baseline - current) / baseline) * 100
             score += int(reduction_percentage * 10)  # 10 points per 1% reduction
         
         self.eco_score = max(0, score)

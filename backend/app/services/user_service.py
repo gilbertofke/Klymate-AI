@@ -445,6 +445,206 @@ class UserService:
             logger.error(f"Error getting user statistics: {str(e)}")
             raise
     
+    async def get_user_leaderboard(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """
+        Get user leaderboard based on eco scores and CO2 savings.
+        
+        Args:
+            limit: Maximum number of users to return
+            
+        Returns:
+            List of user leaderboard entries
+        """
+        try:
+            # Get top users by eco score
+            users = await self.user_repository.get_top_users_by_eco_score(limit)
+            
+            leaderboard = []
+            for rank, user in enumerate(users, 1):
+                entry = {
+                    "rank": rank,
+                    "user_id": user.id,
+                    "display_name": user.display_name or user.name or "Anonymous",
+                    "location": user.location,
+                    "eco_score": user.eco_score,
+                    "total_co2_saved": float(user.total_co2_saved),
+                    "current_streak": user.current_streak,
+                    "profile_picture_url": user.profile_picture_url
+                }
+                leaderboard.append(entry)
+            
+            logger.debug(f"Generated leaderboard with {len(leaderboard)} users")
+            return leaderboard
+            
+        except Exception as e:
+            logger.error(f"Error getting user leaderboard: {str(e)}")
+            raise
+    
+    async def get_user_carbon_insights(self, user_id: int) -> Dict[str, Any]:
+        """
+        Get detailed carbon footprint insights for a user.
+        
+        Args:
+            user_id: User's ID
+            
+        Returns:
+            Dictionary containing carbon insights and recommendations
+        """
+        try:
+            user = await self.user_repository.get_by_id(user_id)
+            if not user:
+                return {}
+            
+            # Get basic carbon stats
+            carbon_stats = user.get_carbon_stats()
+            
+            # Add performance category
+            if user.baseline_footprint:
+                category = self.footprint_calculator.get_footprint_category(
+                    float(user.baseline_footprint)
+                )
+                carbon_stats["footprint_category"] = category
+            
+            # Add comparison to average
+            avg_stats = await self.user_repository.get_user_statistics()
+            if avg_stats.get("avg_baseline_footprint"):
+                avg_footprint = avg_stats["avg_baseline_footprint"]
+                if user.baseline_footprint:
+                    comparison = ((float(user.baseline_footprint) - avg_footprint) / avg_footprint) * 100
+                    carbon_stats["comparison_to_average"] = round(comparison, 1)
+            
+            # Add trend analysis (if we have historical data)
+            carbon_stats["trend"] = "improving" if user.total_co2_saved > 0 else "stable"
+            
+            # Get personalized recommendations
+            recommendations = await self.get_user_recommendations(user_id)
+            carbon_stats["recommendations"] = recommendations[:3]  # Top 3 recommendations
+            
+            logger.debug(f"Generated carbon insights for user {user_id}")
+            return carbon_stats
+            
+        except Exception as e:
+            logger.error(f"Error getting carbon insights for user {user_id}: {str(e)}")
+            raise
+    
+    async def get_user_engagement_metrics(self, user_id: int) -> Dict[str, Any]:
+        """
+        Get user engagement metrics and activity analysis.
+        
+        Args:
+            user_id: User's ID
+            
+        Returns:
+            Dictionary containing engagement metrics
+        """
+        try:
+            user = await self.user_repository.get_by_id(user_id)
+            if not user:
+                return {}
+            
+            # Calculate engagement score
+            engagement_score = 0
+            
+            # Login frequency (max 25 points)
+            if user.login_count > 0:
+                login_score = min(user.login_count * 2, 25)
+                engagement_score += login_score
+            
+            # Onboarding completion (25 points)
+            if user.onboarding_completed:
+                engagement_score += 25
+            
+            # Current streak (max 25 points)
+            streak_score = min(user.current_streak * 2, 25)
+            engagement_score += streak_score
+            
+            # CO2 savings activity (max 25 points)
+            co2_score = min(float(user.total_co2_saved) / 100, 25)
+            engagement_score += co2_score
+            
+            # Determine engagement level
+            if engagement_score >= 75:
+                engagement_level = "high"
+            elif engagement_score >= 50:
+                engagement_level = "medium"
+            elif engagement_score >= 25:
+                engagement_level = "low"
+            else:
+                engagement_level = "inactive"
+            
+            metrics = {
+                "engagement_score": round(engagement_score, 1),
+                "engagement_level": engagement_level,
+                "login_count": user.login_count,
+                "days_since_last_login": None,
+                "current_streak": user.current_streak,
+                "longest_streak": user.longest_streak,
+                "onboarding_completed": user.onboarding_completed,
+                "total_activities": float(user.total_co2_saved) / 10  # Estimate activities from CO2 saved
+            }
+            
+            # Calculate days since last login
+            if user.last_login_at:
+                from datetime import datetime
+                days_since = (datetime.utcnow() - user.last_login_at).days
+                metrics["days_since_last_login"] = days_since
+            
+            logger.debug(f"Generated engagement metrics for user {user_id}")
+            return metrics
+            
+        except Exception as e:
+            logger.error(f"Error getting engagement metrics for user {user_id}: {str(e)}")
+            raise
+    
+    async def get_cohort_analysis(self, days_back: int = 30) -> Dict[str, Any]:
+        """
+        Get cohort analysis for user retention and engagement.
+        
+        Args:
+            days_back: Number of days to look back for cohort analysis
+            
+        Returns:
+            Dictionary containing cohort analysis data
+        """
+        try:
+            from datetime import datetime, timedelta
+            
+            # Get users registered in the specified period
+            start_date = datetime.utcnow() - timedelta(days=days_back)
+            cohort_users = await self.user_repository.get_users_registered_after(start_date)
+            
+            # Analyze cohort metrics
+            total_cohort_users = len(cohort_users)
+            if total_cohort_users == 0:
+                return {"message": "No users in specified cohort period"}
+            
+            # Calculate retention metrics
+            active_users = sum(1 for user in cohort_users if user.is_active)
+            onboarded_users = sum(1 for user in cohort_users if user.onboarding_completed)
+            engaged_users = sum(1 for user in cohort_users if user.current_streak > 0)
+            
+            # Calculate average metrics
+            avg_eco_score = sum(user.eco_score for user in cohort_users) / total_cohort_users
+            avg_co2_saved = sum(float(user.total_co2_saved) for user in cohort_users) / total_cohort_users
+            
+            analysis = {
+                "cohort_period_days": days_back,
+                "total_users": total_cohort_users,
+                "retention_rate": round((active_users / total_cohort_users) * 100, 2),
+                "onboarding_rate": round((onboarded_users / total_cohort_users) * 100, 2),
+                "engagement_rate": round((engaged_users / total_cohort_users) * 100, 2),
+                "avg_eco_score": round(avg_eco_score, 1),
+                "avg_co2_saved": round(avg_co2_saved, 2),
+                "performance_category": "high" if avg_eco_score > 1000 else "medium" if avg_eco_score > 500 else "low"
+            }
+            
+            logger.debug(f"Generated cohort analysis for {days_back} days")
+            return analysis
+            
+        except Exception as e:
+            logger.error(f"Error getting cohort analysis: {str(e)}")
+            raise
+    
     async def search_users(self, query: str, limit: int = 50) -> List[User]:
         """
         Search users with business logic filtering.
