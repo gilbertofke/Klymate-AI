@@ -73,8 +73,8 @@
   - Write unit tests for repository and service layers
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 6. Implement habit tracking system
-- [ ] 6.1 Create habit category models and data
+- [x] 6. Implement habit tracking system
+- [x] 6.1 Create habit category models and data
   - Design HabitCategory SQLAlchemy model with CO2 impact calculations
   - Create database migration for habit_categories table
   - Implement seed data for common habit categories (transport, diet, energy, lifestyle)
@@ -82,7 +82,7 @@
   - Write unit tests for habit category operations
   - _Requirements: 6.2, 10.2_
 
-- [ ] 6.2 Build user habit logging functionality
+- [x] 6.2 Build user habit logging functionality
   - Create UserHabit SQLAlchemy model with quantity and CO2 savings
   - Implement HabitRepository with logging and history retrieval
   - Create HabitService for carbon footprint calculations
