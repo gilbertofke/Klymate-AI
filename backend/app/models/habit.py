@@ -1,63 +1,59 @@
 """
 Habit Models
 
-This module defines the Habit and HabitCategory models for the habit tracking system.
+This module defines the HabitCategory and UserHabit models for the habit tracking system.
+Aligned with Task 5 BaseModel foundation and design document.
 """
 
 from enum import Enum
-from sqlalchemy import Column, Integer, Float, String, Enum as SQLAEnum, ForeignKey, Text
+from decimal import Decimal
+from sqlalchemy import Column, Integer, String, Enum as SQLAEnum, ForeignKey, Text, Decimal as SQLDecimal, Date
 from sqlalchemy.orm import relationship
-from app.models.base import Base, TimestampMixin
+from datetime import date
+from app.models.base import BaseModel, TimestampMixin, SoftDeleteMixin
 
-class HabitCategory(str, Enum):
+class CategoryType(str, Enum):
     """Categories for different types of eco-friendly habits."""
     TRANSPORT = "transport"
+    DIET = "diet"
     ENERGY = "energy"
-    FOOD = "food"
-    WASTE = "waste"
     LIFESTYLE = "lifestyle"
 
-class Habit(Base, TimestampMixin):
+class HabitCategory(BaseModel, TimestampMixin):
     """
-    Habit model for defining eco-friendly activities.
+    Predefined habit categories with CO2 impact factors.
     
-    Attributes:
-        id: Unique identifier for the habit
-        user_id: Foreign key to the User who created the habit
-        name: Name of the habit
-        description: Detailed description of the habit
-        category: Type of habit (transport, energy, etc.)
-        carbon_impact: CO2 savings per unit of activity (kg)
-        frequency: How often the habit should be performed
+    This model defines the standard categories of eco-friendly activities
+    that users can log, along with their carbon impact calculations.
     """
-    __tablename__ = "habits"
+    __tablename__ = "habit_categories"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    name = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False, index=True)
     description = Column(Text)
-    category = Column(SQLAEnum(HabitCategory), nullable=False)
-    carbon_impact = Column(Float, nullable=False)  # kg CO2 saved per unit
-    frequency = Column(String(50))  # daily, weekly, monthly, etc.
-
+    category_type = Column(SQLAEnum(CategoryType), nullable=False, index=True)
+    co2_impact_per_unit = Column(SQLDecimal(8,4), nullable=False)  # kg CO2 saved per unit
+    unit_type = Column(String(50), nullable=False)  # 'km', 'meal', 'kwh', etc.
+    
     # Relationships
-    user = relationship("User", back_populates="created_habits")
-    user_habits = relationship("UserHabit", back_populates="habit", cascade="all, delete-orphan")
+    user_habits = relationship("UserHabit", back_populates="category", cascade="all, delete-orphan")
+
+    def calculate_co2_savings(self, quantity: float) -> Decimal:
+        """Calculate CO2 savings for a given quantity."""
+        return Decimal(str(quantity)) * self.co2_impact_per_unit
 
     def to_dict(self) -> dict:
-        """Convert the Habit instance to a dictionary."""
+        """Convert the HabitCategory instance to a dictionary."""
         return {
             "id": self.id,
-            "user_id": self.user_id,
             "name": self.name,
             "description": self.description,
-            "category": self.category.value,
-            "carbon_impact": self.carbon_impact,
-            "frequency": self.frequency,
+            "category_type": self.category_type.value if self.category_type else None,
+            "co2_impact_per_unit": float(self.co2_impact_per_unit) if self.co2_impact_per_unit else 0.0,
+            "unit_type": self.unit_type,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
 
     def __repr__(self) -> str:
-        """String representation of the Habit."""
-        return f"<Habit(id={self.id}, name='{self.name}', category={self.category}, impact={self.carbon_impact}kg)>"
+        """String representation of the HabitCategory."""
+        return f"<HabitCategory(id={self.id}, name='{self.name}', type={self.category_type}, impact={self.co2_impact_per_unit}kg/{self.unit_type})>"
