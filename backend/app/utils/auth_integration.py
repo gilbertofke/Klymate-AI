@@ -7,10 +7,15 @@ with JWT tokens for the Klymate AI backend.
 
 import logging
 from typing import Optional, Dict, Any, Tuple
+from fastapi import HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.utils.firebase_auth import FirebaseAuth, FirebaseAuthError
 from app.utils.jwt_handler import JWTHandler, JWTError
 
 logger = logging.getLogger(__name__)
+
+# Security scheme for FastAPI
+security = HTTPBearer()
 
 
 class AuthIntegration:
@@ -206,3 +211,40 @@ def example_request_validation():
     else:
         print("Request unauthorized!")
         return None
+
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
+    """
+    FastAPI dependency to get current authenticated user.
+    
+    Args:
+        credentials: HTTP Bearer credentials from request
+        
+    Returns:
+        User information dictionary
+        
+    Raises:
+        HTTPException: If authentication fails
+    """
+    try:
+        # Validate the JWT token
+        user_info = AuthIntegration.validate_request_token(f"Bearer {credentials.credentials}")
+        
+        if not user_info:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        return user_info
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Authentication error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication failed",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
