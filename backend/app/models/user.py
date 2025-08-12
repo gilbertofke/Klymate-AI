@@ -65,9 +65,10 @@ class User(BaseModel, SoftDeleteMixin, AuditMixin):
     onboarding_data = Column(Text, nullable=True)  # JSON string for survey responses
     preferences = Column(Text, nullable=True)  # JSON string for user preferences
     
-    # Relationships - Updated for habit tracking and AI conversations
+    # Relationships - Updated for habit tracking, AI conversations, and badges
     user_habits = relationship("UserHabit", back_populates="user", cascade="all, delete-orphan")
     ai_conversations = relationship("AIConversation", back_populates="user", cascade="all, delete-orphan")
+    user_badges = relationship("UserBadge", back_populates="user", cascade="all, delete-orphan")
     
     def set_password(self, password: str) -> None:
         """

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .endpoints import users, auth, habits, ai_coach
+from .endpoints import users, auth, habits, ai_coach, gamification
 
 api_router = APIRouter()
 
@@ -14,3 +14,6 @@ api_router.include_router(habits.router, prefix="/habits", tags=["habits"])
 
 # Include AI coach routes
 api_router.include_router(ai_coach.router, tags=["ai-coach"])
+
+# Include gamification routes
+api_router.include_router(gamification.router, tags=["gamification"])

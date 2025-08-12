@@ -572,3 +572,29 @@ class UserRepository(BaseRepository[User]):
         except Exception as e:
             logger.error(f"Error getting carbon statistics: {str(e)}")
             raise
+    
+    async def get_leaderboard_users(self, limit: int = 10, offset: int = 0) -> List[User]:
+        """
+        Get users for leaderboard ordered by eco score.
+        
+        Args:
+            limit: Number of users to return
+            offset: Offset for pagination
+            
+        Returns:
+            List of User instances ordered by eco score
+        """
+        try:
+            query = select(User).where(
+                User.is_deleted == False
+            ).order_by(desc(User.eco_score)).limit(limit).offset(offset)
+            
+            result = await self.db.execute(query)
+            users = result.scalars().all()
+            
+            logger.debug(f"Retrieved {len(users)} users for leaderboard")
+            return list(users)
+            
+        except Exception as e:
+            logger.error(f"Error getting leaderboard users: {str(e)}")
+            return []
