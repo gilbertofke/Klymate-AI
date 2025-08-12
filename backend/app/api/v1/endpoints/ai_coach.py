@@ -22,7 +22,7 @@ from app.schemas.ai_conversation import (
     AICoachingInsightResponse,
     ConversationRatingRequest
 )
-from app.schemas.user import UserResponse
+from app.schemas.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ router = APIRouter(prefix="/ai", tags=["AI Coach"])
 @router.post("/chat", response_model=ChatResponse)
 async def chat_with_ai(
     request: ChatRequest,
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -66,7 +66,7 @@ async def chat_with_ai(
 async def get_personalized_suggestions(
     focus_area: Optional[str] = Query(None, description="Focus area (transport, energy, diet, lifestyle)"),
     limit: int = Query(5, ge=1, le=20, description="Maximum number of suggestions"),
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -103,7 +103,7 @@ async def get_personalized_suggestions(
 @router.get("/insights")
 async def get_carbon_insights(
     time_period: int = Query(30, ge=7, le=365, description="Analysis period in days"),
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -134,7 +134,7 @@ async def get_carbon_insights(
 @router.post("/search", response_model=ConversationSearchResponse)
 async def search_conversations(
     request: ConversationSearchRequest,
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -177,7 +177,7 @@ async def search_conversations(
 async def get_conversation_history(
     session_id: Optional[str] = Query(None, description="Filter by session ID"),
     limit: int = Query(20, ge=1, le=100, description="Maximum number of conversations"),
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -217,7 +217,7 @@ async def get_conversation_history(
 async def rate_conversation(
     conversation_id: int,
     request: ConversationRatingRequest,
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -264,7 +264,7 @@ async def rate_conversation(
 async def get_popular_topics(
     days_back: int = Query(30, ge=1, le=365, description="Analysis period in days"),
     limit: int = Query(10, ge=1, le=50, description="Maximum number of topics"),
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -299,7 +299,7 @@ async def get_popular_topics(
 @router.get("/analytics/user-stats")
 async def get_user_conversation_stats(
     days_back: int = Query(30, ge=1, le=365, description="Analysis period in days"),
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -344,7 +344,7 @@ async def get_user_conversation_stats(
 async def delete_conversation_history(
     session_id: Optional[str] = Query(None, description="Delete specific session"),
     older_than_days: Optional[int] = Query(None, ge=1, description="Delete conversations older than X days"),
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
