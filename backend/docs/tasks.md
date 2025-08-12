@@ -91,7 +91,9 @@
   - Write integration tests for habit tracking workflow
   - _Requirements: 6.2, 6.3, 6.4, 10.2, 10.6_
 
-- [ ] 7. Set up AI coaching infrastructure
+- [x] 7. Set up AI coaching infrastructure
+
+
 - [x] 7.1 Configure LangChain and OpenAI integration
 
 
@@ -112,13 +114,17 @@
   - Implement AICoachService with conversation management
   - Create chat endpoint for user-AI interactions
   - Build personalized suggestion generation based on user habits
+
   - Implement carbon footprint insights using AI analysis
   - Add conversation history retrieval with semantic search
   - Write integration tests for AI coaching workflows
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
 - [ ] 8. Implement gamification system
-- [ ] 8.1 Create badge and achievement models
+- [x] 8.1 Create badge and achievement models
+
+
+
   - Design Badge and UserBadge SQLAlchemy models
   - Create database migrations for gamification tables
   - Implement badge criteria evaluation system
