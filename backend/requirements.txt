@@ -28,6 +28,7 @@ langchain==0.3.10
 langchain-openai==0.2.14
 openai==1.51.2
 tiktoken==0.8.0
+numpy==1.24.3
 
 # Caching
 redis==5.0.1
