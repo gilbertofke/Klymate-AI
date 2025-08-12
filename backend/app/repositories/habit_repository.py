@@ -332,3 +332,214 @@ class HabitRepository(BaseRepository[UserHabit]):
             await self.db.rollback()
             logger.error(f"Error deleting habit entry {habit_id}: {str(e)}")
             raise
+    async def get_user_habits_summary(self, user_id: int) -> List[Dict[str, Any]]:
+        """
+        Get a summary of user's habits for AI coaching context.
+        
+        Args:
+            user_id: User's ID
+            
+        Returns:
+            List of habit summary dictionaries
+        """
+        try:
+            # Get recent habits (last 30 days)
+            end_date = date.today()
+            start_date = end_date - timedelta(days=30)
+            
+            habits = await self.get_user_habits(
+                user_id=user_id,
+                start_date=start_date,
+                end_date=end_date,
+                limit=50
+            )
+            
+            # Convert to summary format
+            summary = []
+            for habit in habits:
+                summary.append({
+                    "category": habit.category.name if habit.category else "Unknown",
+                    "category_type": habit.category.category_type.value if habit.category and habit.category.category_type else "general",
+                    "quantity": float(habit.quantity),
+                    "co2_saved": float(habit.co2_saved),
+                    "logged_date": habit.logged_date,
+                    "notes": habit.notes
+                })
+            
+            logger.debug(f"Generated habits summary for user {user_id}: {len(summary)} entries")
+            return summary
+            
+        except Exception as e:
+            logger.error(f"Error getting habits summary for user {user_id}: {str(e)}")
+            return []
+    
+    async def get_user_habit_trends(self, user_id: int, days_back: int = 30) -> Dict[str, Any]:
+        """
+        Get user's habit trends for AI analysis.
+        
+        Args:
+            user_id: User's ID
+            days_back: Number of days to analyze
+            
+        Returns:
+            Dictionary containing trend analysis
+        """
+        try:
+            end_date = date.today()
+            start_date = end_date - timedelta(days=days_back)
+            
+            # Get habits in the period
+            habits = await self.get_user_habits(
+                user_id=user_id,
+                start_date=start_date,
+                end_date=end_date
+            )
+            
+            if not habits:
+                return {
+                    "total_habits": 0,
+                    "avg_daily_habits": 0,
+                    "top_categories": [],
+                    "trend_direction": "no_data",
+                    "co2_saved_total": 0,
+                    "co2_saved_avg_daily": 0
+                }
+            
+            # Calculate basic metrics
+            total_habits = len(habits)
+            avg_daily_habits = total_habits / days_back
+            total_co2_saved = sum(float(habit.co2_saved) for habit in habits)
+            avg_daily_co2_saved = total_co2_saved / days_back
+            
+            # Analyze categories
+            category_counts = {}
+            for habit in habits:
+                category = habit.category.category_type.value if habit.category and habit.category.category_type else "general"
+                category_counts[category] = category_counts.get(category, 0) + 1
+            
+            # Get top categories
+            top_categories = sorted(category_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+            top_categories = [cat[0] for cat in top_categories]
+            
+            # Simple trend analysis (compare first half vs second half)
+            mid_date = start_date + timedelta(days=days_back // 2)
+            first_half = [h for h in habits if h.logged_date < mid_date]
+            second_half = [h for h in habits if h.logged_date >= mid_date]
+            
+            if len(first_half) > 0 and len(second_half) > 0:
+                first_half_avg = len(first_half) / (days_back // 2)
+                second_half_avg = len(second_half) / (days_back - days_back // 2)
+                
+                if second_half_avg > first_half_avg * 1.1:
+                    trend_direction = "improving"
+                elif second_half_avg < first_half_avg * 0.9:
+                    trend_direction = "declining"
+                else:
+                    trend_direction = "stable"
+            else:
+                trend_direction = "insufficient_data"
+            
+            trends = {
+                "total_habits": total_habits,
+                "avg_daily_habits": round(avg_daily_habits, 2),
+                "top_categories": top_categories,
+                "trend_direction": trend_direction,
+                "co2_saved_total": round(total_co2_saved, 2),
+                "co2_saved_avg_daily": round(avg_daily_co2_saved, 2),
+                "analysis_period_days": days_back,
+                "category_breakdown": category_counts
+            }
+            
+            logger.debug(f"Generated habit trends for user {user_id}: {trends}")
+            return trends
+            
+        except Exception as e:
+            logger.error(f"Error getting habit trends for user {user_id}: {str(e)}")
+            return {}
+    
+    async def get_user_recent_habits(self, user_id: int, days: int = 7) -> List[UserHabit]:
+        """
+        Get user's recent habits within specified days.
+        
+        Args:
+            user_id: User's ID
+            days: Number of recent days to include
+            
+        Returns:
+            List of recent UserHabit instances
+        """
+        try:
+            end_date = date.today()
+            start_date = end_date - timedelta(days=days)
+            
+            return await self.get_user_habits(
+                user_id=user_id,
+                start_date=start_date,
+                end_date=end_date
+            )
+            
+        except Exception as e:
+            logger.error(f"Error getting recent habits for user {user_id}: {str(e)}")
+            return []
+    
+    async def get_user_habit_statistics(self, user_id: int) -> Dict[str, Any]:
+        """
+        Get comprehensive habit statistics for a user.
+        
+        Args:
+            user_id: User's ID
+            
+        Returns:
+            Dictionary containing comprehensive statistics
+        """
+        try:
+            # Get all-time statistics
+            all_time_query = select(
+                func.count(UserHabit.id).label("total_habits"),
+                func.sum(UserHabit.co2_saved).label("total_co2_saved"),
+                func.avg(UserHabit.co2_saved).label("avg_co2_saved")
+            ).where(
+                and_(
+                    UserHabit.user_id == user_id,
+                    UserHabit.is_deleted == False
+                )
+            )
+            
+            result = await self.db.execute(all_time_query)
+            all_time_stats = result.first()
+            
+            # Get top category
+            top_category_query = select(
+                HabitCategory.category_type,
+                func.count(UserHabit.id).label("count")
+            ).join(
+                HabitCategory,
+                UserHabit.category_id == HabitCategory.id
+            ).where(
+                and_(
+                    UserHabit.user_id == user_id,
+                    UserHabit.is_deleted == False
+                )
+            ).group_by(HabitCategory.category_type).order_by(desc(func.count(UserHabit.id))).limit(1)
+            
+            top_category_result = await self.db.execute(top_category_query)
+            top_category_row = top_category_result.first()
+            
+            statistics = {
+                "total_habits": all_time_stats.total_habits or 0,
+                "total_co2_saved": float(all_time_stats.total_co2_saved) if all_time_stats.total_co2_saved else 0.0,
+                "avg_co2_saved": float(all_time_stats.avg_co2_saved) if all_time_stats.avg_co2_saved else 0.0,
+                "top_category": top_category_row.category_type.value if top_category_row and top_category_row.category_type else "transport"
+            }
+            
+            logger.debug(f"Generated comprehensive statistics for user {user_id}")
+            return statistics
+            
+        except Exception as e:
+            logger.error(f"Error getting habit statistics for user {user_id}: {str(e)}")
+            return {
+                "total_habits": 0,
+                "total_co2_saved": 0.0,
+                "avg_co2_saved": 0.0,
+                "top_category": "transport"
+            }
