@@ -6,7 +6,7 @@ for the Klymate AI application. Updated to include habit relationships.
 """
 
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import json
 from decimal import Decimal
 from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer
@@ -67,7 +67,8 @@ class User(BaseModel, SoftDeleteMixin, AuditMixin):
     
     # Relationships - Updated for habit tracking, AI conversations, and badges
     user_habits = relationship("UserHabit", back_populates="user", cascade="all, delete-orphan")
-    ai_conversations = relationship("AIConversation", back_populates="user", cascade="all, delete-orphan")
+    # AI conversations relationship - using string reference to avoid circular imports
+    ai_conversations = relationship("AIConversation", back_populates="user", cascade="all, delete-orphan", lazy="dynamic")
     user_badges = relationship("UserBadge", back_populates="user", cascade="all, delete-orphan")
     
     def set_password(self, password: str) -> None:
