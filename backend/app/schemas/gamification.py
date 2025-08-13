@@ -5,7 +5,7 @@ This module defines Pydantic schemas for gamification API operations,
 including badges, leaderboards, and user progress.
 """
 
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field
 
@@ -196,3 +196,28 @@ class GamificationStatsResponse(BaseSchema):
     top_streak: int = Field(..., description="Longest streak achieved by any user")
     total_co2_saved: float = Field(..., description="Total CO2 saved by all users")
     most_popular_badge: Optional[str] = Field(None, description="Most frequently earned badge")
+
+
+# Additional schemas for API compatibility
+class BadgeResponse(BaseSchema):
+    """Schema for single badge response."""
+    
+    badge: BadgeInfo = Field(..., description="Badge information")
+    message: Optional[str] = Field(None, description="Response message")
+
+
+class UserBadgeResponse(BaseSchema):
+    """Schema for user badge response."""
+    
+    user_badge: BadgeProgressInfo = Field(..., description="User badge progress")
+    badge_info: BadgeInfo = Field(..., description="Badge information")
+    message: Optional[str] = Field(None, description="Response message")
+
+
+class BadgeProgressResponse(BaseSchema):
+    """Schema for badge progress response."""
+    
+    badge_id: int = Field(..., description="Badge ID")
+    badge_name: str = Field(..., description="Badge name")
+    progress: BadgeProgressInfo = Field(..., description="Progress information")
+    message: Optional[str] = Field(None, description="Response message")

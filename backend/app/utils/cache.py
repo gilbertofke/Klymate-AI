@@ -627,6 +627,31 @@ class CacheMetrics:
         return recommendations
 
 
+# Convenience functions for backward compatibility
+async def cached(key: str, ttl: int = 3600):
+    """
+    Decorator for caching function results.
+    
+    Args:
+        key: Cache key prefix
+        ttl: Time to live in seconds
+    """
+    return cache_result(ttl=ttl, key_prefix=key)
+
+
+async def cache_invalidate(pattern: str) -> int:
+    """
+    Invalidate cache entries matching pattern.
+    
+    Args:
+        pattern: Pattern to match for invalidation
+        
+    Returns:
+        Number of keys invalidated
+    """
+    return await invalidate_cache(pattern)
+
+
 # Initialize cache warmer and metrics
 cache_warmer = CacheWarmer(cache_manager)
 cache_metrics = CacheMetrics(cache_manager)
