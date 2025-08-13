@@ -543,3 +543,179 @@ class HabitRepository(BaseRepository[UserHabit]):
                 "avg_co2_saved": 0.0,
                 "top_category": "transport"
             }
+    
+    # Analytics-specific methods for Task 9
+    
+    async def get_user_habits_by_date_range(
+        self, 
+        user_id: int, 
+        start_date: datetime, 
+        end_date: datetime
+    ) -> List[Dict[str, Any]]:
+        """
+        Get user habits within a date range for analytics.
+        
+        Args:
+            user_id: User's ID
+            start_date: Start datetime
+            end_date: End datetime
+            
+        Returns:
+            List of habit dictionaries
+        """
+        try:
+            query = select(UserHabit).options(
+                selectinload(UserHabit.category)
+            ).where(
+                and_(
+                    UserHabit.user_id == user_id,
+                    UserHabit.logged_date >= start_date.date(),
+                    UserHabit.logged_date <= end_date.date(),
+                    UserHabit.is_deleted == False
+                )
+            ).order_by(UserHabit.logged_date)
+            
+            result = await self.db.execute(query)
+            habits = result.scalars().all()
+            
+            # Convert to dictionaries
+            habit_dicts = []
+            for habit in habits:
+                habit_dicts.append({
+                    "id": habit.id,
+                    "user_id": habit.user_id,
+                    "category": habit.category.category_type.value if habit.category and habit.category.category_type else "general",
+                    "co2_saved": float(habit.co2_saved),
+                    "quantity": float(habit.quantity),
+                    "logged_at": datetime.combine(habit.logged_date, datetime.min.time()),
+                    "notes": habit.notes
+                })
+            
+            logger.debug(f"Retrieved {len(habit_dicts)} habits for analytics")
+            return habit_dicts
+            
+        except Exception as e:
+            logger.error(f"Error getting habits by date range: {str(e)}")
+            return []
+    
+    async def get_category_statistics(self, user_id: int) -> Dict[str, Dict[str, Any]]:
+        """
+        Get category-specific statistics for a user.
+        
+        Args:
+            user_id: User's ID
+            
+        Returns:
+            Dictionary mapping category names to statistics
+        """
+        try:
+            query = select(
+                HabitCategory.category_type,
+                func.count(UserHabit.id).label("count"),
+                func.sum(UserHabit.co2_saved).label("co2_saved"),
+                func.avg(UserHabit.co2_saved).label("avg_impact")
+            ).join(
+                HabitCategory,
+                UserHabit.category_id == HabitCategory.id
+            ).where(
+                and_(
+                    UserHabit.user_id == user_id,
+                    UserHabit.is_deleted == False
+                )
+            ).group_by(HabitCategory.category_type)
+            
+            result = await self.db.execute(query)
+            rows = result.all()
+            
+            statistics = {}
+            for row in rows:
+                category_name = row.category_type.value if row.category_type else "general"
+                statistics[category_name] = {
+                    "count": row.count,
+                    "co2_saved": float(row.co2_saved) if row.co2_saved else 0.0,
+                    "avg_impact": float(row.avg_impact) if row.avg_impact else 0.0
+                }
+            
+            logger.debug(f"Generated category statistics for user {user_id}")
+            return statistics
+            
+        except Exception as e:
+            logger.error(f"Error getting category statistics: {str(e)}")
+            return {}
+    
+    async def get_total_habits(self) -> int:
+        """
+        Get total number of habits logged across all users.
+        
+        Returns:
+            Total habit count
+        """
+        try:
+            query = select(func.count(UserHabit.id)).where(
+                UserHabit.is_deleted == False
+            )
+            result = await self.db.execute(query)
+            total = result.scalar() or 0
+            
+            logger.debug(f"Total habits logged: {total}")
+            return total
+            
+        except Exception as e:
+            logger.error(f"Error getting total habits: {str(e)}")
+            return 0
+    
+    async def get_total_co2_saved(self) -> float:
+        """
+        Get total CO2 saved across all users.
+        
+        Returns:
+            Total CO2 saved in kg
+        """
+        try:
+            query = select(func.sum(UserHabit.co2_saved)).where(
+                UserHabit.is_deleted == False
+            )
+            result = await self.db.execute(query)
+            total = result.scalar() or 0
+            
+            logger.debug(f"Total CO2 saved: {total} kg")
+            return float(total)
+            
+        except Exception as e:
+            logger.error(f"Error getting total CO2 saved: {str(e)}")
+            return 0.0
+    
+    async def get_most_popular_category(self) -> str:
+        """
+        Get the most popular habit category across all users.
+        
+        Returns:
+            Most popular category name
+        """
+        try:
+            query = select(
+                HabitCategory.category_type,
+                func.count(UserHabit.id).label("count")
+            ).join(
+                HabitCategory,
+                UserHabit.category_id == HabitCategory.id
+            ).where(
+                UserHabit.is_deleted == False
+            ).group_by(HabitCategory.category_type).order_by(
+                desc(func.count(UserHabit.id))
+            ).limit(1)
+            
+            result = await self.db.execute(query)
+            row = result.first()
+            
+            if row and row.category_type:
+                popular_category = row.category_type.value
+            else:
+                popular_category = "transport"  # Default fallback
+            
+            logger.debug(f"Most popular category: {popular_category}")
+            return popular_category
+            
+        except Exception as e:
+            logger.error(f"Error getting most popular category: {str(e)}")
+            return "transport"

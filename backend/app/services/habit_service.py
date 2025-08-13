@@ -16,6 +16,7 @@ from app.repositories.habit_repository import HabitRepository, HabitCategoryRepo
 from app.models.user_habit import UserHabit
 from app.models.habit import HabitCategory, CategoryType
 from app.schemas.habit import HabitCreate, HabitResponse
+from app.utils.cache import CacheInvalidationStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,12 @@ class HabitService:
             
             # Create habit entry
             habit_entry = await self.habit_repository.create_habit_entry(user_id, entry_data)
+            
+            # Invalidate user-specific cache entries
+            await CacheInvalidationStrategy.invalidate_user_cache(user_id)
+            
+            # Invalidate analytics cache since platform stats may have changed
+            await CacheInvalidationStrategy.invalidate_analytics_cache()
             
             logger.info(f"Logged habit for user {user_id}: {habit_entry.id} ({co2_saved}kg CO2 saved)")
             return habit_entry

@@ -48,6 +48,20 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, env="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
     JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7, env="JWT_REFRESH_TOKEN_EXPIRE_DAYS")
     
+    # Redis Configuration for Caching (Task 9.2)
+    REDIS_URL: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")
+    REDIS_HOST: str = Field(default="localhost", env="REDIS_HOST")
+    REDIS_PORT: int = Field(default=6379, env="REDIS_PORT")
+    REDIS_DB: int = Field(default=0, env="REDIS_DB")
+    REDIS_PASSWORD: Optional[str] = Field(default=None, env="REDIS_PASSWORD")
+    REDIS_SSL: bool = Field(default=False, env="REDIS_SSL")
+    
+    # Cache Configuration
+    CACHE_DEFAULT_EXPIRE: int = Field(default=300, env="CACHE_DEFAULT_EXPIRE")  # 5 minutes
+    CACHE_ANALYTICS_EXPIRE: int = Field(default=1800, env="CACHE_ANALYTICS_EXPIRE")  # 30 minutes
+    CACHE_USER_DATA_EXPIRE: int = Field(default=600, env="CACHE_USER_DATA_EXPIRE")  # 10 minutes
+    CACHE_LEADERBOARD_EXPIRE: int = Field(default=900, env="CACHE_LEADERBOARD_EXPIRE")  # 15 minutes
+    
     # OpenAI Configuration
     OPENAI_API_KEY: str = Field(default="test-openai-key", env="OPENAI_API_KEY")
     OPENAI_MODEL: str = Field(default="gpt-3.5-turbo", env="OPENAI_MODEL")
@@ -79,6 +93,17 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="allow"
     )
+    # Cache Configuration (Task 9.2)
+    CACHE_ENABLED: bool = Field(default=True, env="CACHE_ENABLED")
+    CACHE_DEFAULT_TTL: int = Field(default=3600, env="CACHE_DEFAULT_TTL")  # 1 hour
+    CACHE_KEY_PREFIX: str = Field(default="klymate:", env="CACHE_KEY_PREFIX")
+    REDIS_MAX_CONNECTIONS: int = Field(default=10, env="REDIS_MAX_CONNECTIONS")
+    
+    # Analytics Cache TTL Settings
+    DASHBOARD_CACHE_TTL: int = Field(default=1800, env="DASHBOARD_CACHE_TTL")  # 30 minutes
+    TRENDS_CACHE_TTL: int = Field(default=3600, env="TRENDS_CACHE_TTL")  # 1 hour
+    LEADERBOARD_CACHE_TTL: int = Field(default=900, env="LEADERBOARD_CACHE_TTL")  # 15 minutes
+    PLATFORM_STATS_CACHE_TTL: int = Field(default=7200, env="PLATFORM_STATS_CACHE_TTL")  # 2 hours
 
 # Global settings instance
 settings = Settings()
