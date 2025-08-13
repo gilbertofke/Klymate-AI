@@ -598,3 +598,155 @@ class UserRepository(BaseRepository[User]):
         except Exception as e:
             logger.error(f"Error getting leaderboard users: {str(e)}")
             return []
+    
+    # Analytics-specific methods for Task 9
+    
+    async def get_user_percentile(self, user_id: int) -> float:
+        """
+        Get user's percentile ranking based on eco score.
+        
+        Args:
+            user_id: User's ID
+            
+        Returns:
+            Percentile ranking (0-100)
+        """
+        try:
+            user = await self.get_by_id(user_id)
+            if not user or not user.eco_score:
+                return 0.0
+            
+            # Count users with lower eco scores
+            lower_score_query = select(func.count(User.id)).where(
+                and_(
+                    User.eco_score < user.eco_score,
+                    User.is_deleted == False,
+                    User.eco_score.isnot(None)
+                )
+            )
+            lower_score_result = await self.db.execute(lower_score_query)
+            lower_count = lower_score_result.scalar() or 0
+            
+            # Count total users with eco scores
+            total_users_query = select(func.count(User.id)).where(
+                and_(
+                    User.is_deleted == False,
+                    User.eco_score.isnot(None)
+                )
+            )
+            total_users_result = await self.db.execute(total_users_query)
+            total_count = total_users_result.scalar() or 1
+            
+            percentile = (lower_count / total_count) * 100
+            
+            logger.debug(f"User {user_id} percentile: {percentile:.1f}")
+            return round(percentile, 1)
+            
+        except Exception as e:
+            logger.error(f"Error calculating percentile for user {user_id}: {str(e)}")
+            return 0.0
+    
+    async def get_average_metrics(self) -> Dict[str, float]:
+        """
+        Get platform average metrics for comparison.
+        
+        Returns:
+            Dictionary containing average metrics
+        """
+        try:
+            # Average CO2 saved
+            avg_co2_query = select(func.avg(User.total_co2_saved)).where(
+                and_(
+                    User.total_co2_saved.isnot(None),
+                    User.is_deleted == False
+                )
+            )
+            avg_co2_result = await self.db.execute(avg_co2_query)
+            avg_co2_saved = avg_co2_result.scalar() or 0.0
+            
+            # Average streak
+            avg_streak_query = select(func.avg(User.current_streak)).where(
+                and_(
+                    User.current_streak.isnot(None),
+                    User.is_deleted == False
+                )
+            )
+            avg_streak_result = await self.db.execute(avg_streak_query)
+            avg_streak = avg_streak_result.scalar() or 0.0
+            
+            # Average eco score
+            avg_eco_score_query = select(func.avg(User.eco_score)).where(
+                and_(
+                    User.eco_score.isnot(None),
+                    User.is_deleted == False
+                )
+            )
+            avg_eco_score_result = await self.db.execute(avg_eco_score_query)
+            avg_eco_score = avg_eco_score_result.scalar() or 0.0
+            
+            averages = {
+                "avg_co2_saved": float(avg_co2_saved),
+                "avg_streak": float(avg_streak),
+                "avg_eco_score": float(avg_eco_score)
+            }
+            
+            logger.debug("Retrieved platform average metrics")
+            return averages
+            
+        except Exception as e:
+            logger.error(f"Error getting average metrics: {str(e)}")
+            return {"avg_co2_saved": 0.0, "avg_streak": 0.0, "avg_eco_score": 0.0}
+    
+    async def get_total_users(self) -> int:
+        """
+        Get total number of active users.
+        
+        Returns:
+            Total user count
+        """
+        try:
+            query = select(func.count(User.id)).where(
+                and_(
+                    User.is_active == True,
+                    User.is_deleted == False
+                )
+            )
+            result = await self.db.execute(query)
+            total = result.scalar() or 0
+            
+            logger.debug(f"Total active users: {total}")
+            return total
+            
+        except Exception as e:
+            logger.error(f"Error getting total users: {str(e)}")
+            return 0    
+
+    async def get_active_users_count(self, days: int = 30) -> int:
+        """
+        Get count of users active within specified days.
+        
+        Args:
+            days: Number of days to look back for activity
+            
+        Returns:
+            Count of active users
+        """
+        try:
+            cutoff_date = datetime.utcnow() - timedelta(days=days)
+            
+            query = select(func.count(User.id)).where(
+                and_(
+                    User.last_login_at >= cutoff_date,
+                    User.is_active == True,
+                    User.is_deleted == False
+                )
+            )
+            result = await self.db.execute(query)
+            count = result.scalar() or 0
+            
+            logger.debug(f"Active users in last {days} days: {count}")
+            return count
+            
+        except Exception as e:
+            logger.error(f"Error getting active users count: {str(e)}")
+            return 0
