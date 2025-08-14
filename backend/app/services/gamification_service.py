@@ -31,7 +31,7 @@ class GamificationService:
         self.habit_repository = HabitRepository(db_session)
         logger.info("Gamification Service initialized")
     
-    @cache_invalidate(f"dashboard:*", f"comparison:*", f"categories:*")
+    @cache_invalidate("dashboard:*", "comparison:*", "categories:*")
     async def check_and_award_badges(self, user_id: int, user_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Check and award eligible badges."""
         try:
@@ -57,7 +57,6 @@ class GamificationService:
             logger.error(f"Error awarding badges: {str(e)}")
             return []
     
-    @cached(expire=900, key_prefix="leaderboard")  # Cache for 15 minutes
     @cache_result(ttl=900, key_prefix="leaderboard")  # 15 minutes cache
     async def get_leaderboard(self, limit: int = 10, timeframe: str = "all_time") -> List[Dict[str, Any]]:
         """Generate leaderboard."""

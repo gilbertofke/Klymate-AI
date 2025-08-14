@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - TIDB_HOST=${TIDB_HOST}
+      - TIDB_PORT=${TIDB_PORT}
+      - TIDB_USER=${TIDB_USER}
+      - TIDB_PASSWORD=${TIDB_PASSWORD}
+      - TIDB_DATABASE=${TIDB_DATABASE}
+      - TIDB_SSL_CA=${TIDB_SSL_CA}
+      - TIDB_SSL_VERIFY=${TIDB_SSL_VERIFY}
+      - REDIS_URL=${REDIS_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./tidb-ca.pem:/app/tidb-ca.pem:ro
+      - ./firebase-credentials.json:/app/firebase-credentials.json:ro
+    depends_on:
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development database (optional - use TiDB Cloud in production)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=klymate_dev
+      - POSTGRES_USER=klymate
+      - POSTGRES_PASSWORD=klymate_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    profiles:
+      - development
+
+volumes:
+  redis_data:
+  postgres_data:

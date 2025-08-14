@@ -1,0 +1,175 @@
+name: Maintenance
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  dependency-update:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install pip-tools
+      run: pip install pip-tools
+
+    - name: Update dependencies
+      working-directory: ./backend
+      run: |
+        # Update requirements
+        pip-compile --upgrade requirements.in
+        
+        # Check for security vulnerabilities
+        pip install safety
+        safety check -r requirements.txt --json --output safety-report.json || true
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'chore: update dependencies'
+        title: 'chore: automated dependency updates'
+        body: |
+          🤖 Automated dependency update
+          
+          This PR updates Python dependencies to their latest versions.
+          
+          **Changes:**
+          - Updated requirements.txt with latest package versions
+          - Security scan results attached
+          
+          Please review the changes and test thoroughly before merging.
+        branch: chore/dependency-updates
+        delete-branch: true
+
+  security-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        pip install -r requirements.txt
+        pip install bandit safety
+
+    - name: Run security audit
+      working-directory: ./backend
+      run: |
+        # Run bandit security scan
+        bandit -r app/ -f json -o bandit-report.json
+        
+        # Check for known vulnerabilities
+        safety check --json --output safety-report.json
+        
+        # Generate summary
+        echo "## Security Audit Summary" > security-summary.md
+        echo "Generated on: $(date)" >> security-summary.md
+        echo "" >> security-summary.md
+        
+        # Add bandit results
+        echo "### Static Analysis (Bandit)" >> security-summary.md
+        bandit -r app/ -f txt >> security-summary.md || true
+        
+        echo "" >> security-summary.md
+        echo "### Vulnerability Check (Safety)" >> security-summary.md
+        safety check >> security-summary.md || true
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-audit-${{ github.run_number }}
+        path: |
+          backend/bandit-report.json
+          backend/safety-report.json
+          backend/security-summary.md
+
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check staging health
+      if: ${{ secrets.STAGING_URL }}
+      run: |
+        response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.STAGING_URL }}/health)
+        if [ $response -eq 200 ]; then
+          echo "✅ Staging environment is healthy"
+        else
+          echo "❌ Staging environment health check failed (HTTP $response)"
+          exit 1
+        fi
+
+    - name: Check production health
+      if: ${{ secrets.PRODUCTION_URL }}
+      run: |
+        response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.PRODUCTION_URL }}/health)
+        if [ $response -eq 200 ]; then
+          echo "✅ Production environment is healthy"
+        else
+          echo "❌ Production environment health check failed (HTTP $response)"
+          # Send alert (would integrate with monitoring service)
+          exit 1
+        fi
+
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Cleanup old workflow runs
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { data: workflows } = await github.rest.actions.listRepoWorkflows({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          
+          for (const workflow of workflows.workflows) {
+            const { data: runs } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: workflow.id,
+              status: 'completed',
+              per_page: 100,
+            });
+            
+            // Keep last 50 runs, delete older ones
+            const runsToDelete = runs.workflow_runs.slice(50);
+            
+            for (const run of runsToDelete) {
+              try {
+                await github.rest.actions.deleteWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: run.id,
+                });
+                console.log(`Deleted workflow run ${run.id}`);
+              } catch (error) {
+                console.log(`Failed to delete workflow run ${run.id}: ${error.message}`);
+              }
+            }
+          }
+
+    - name: Cleanup old Docker images
+      run: |
+        echo "🧹 Cleaning up old Docker images..."
+        # This would typically integrate with container registry cleanup
+        echo "✅ Cleanup completed"

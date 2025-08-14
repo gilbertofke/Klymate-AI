@@ -1,0 +1,230 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/**'
+  push:
+    branches: [ dev ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/**'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-cov pytest-xdist
+
+    - name: Create test environment file
+      working-directory: ./backend
+      run: |
+        cat > .env.test << EOF
+        # Test Environment Configuration
+        ENVIRONMENT=test
+        DEBUG=true
+        
+        # Database Configuration (Mock for CI)
+        TIDB_HOST=localhost
+        TIDB_PORT=4000
+        TIDB_USER=test_user
+        TIDB_PASSWORD=test_password
+        TIDB_DATABASE=test_klymate
+        TIDB_SSL_CA=""
+        
+        # Redis Configuration
+        REDIS_URL=redis://localhost:6379/0
+        
+        # Firebase Configuration (Mock for CI)
+        FIREBASE_PROJECT_ID=test-project
+        FIREBASE_PRIVATE_KEY_ID=test-key-id
+        FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKB\nwxFnOGpCGFYjVGVs2PkPqjHjDnDMwqJRa1hLFNXMuFHKtABXgcygiwYaNb4HisTH\nfwHBfTWBiWasNdS6BUtVf7he5Ykw5YEchalQMF/5ONCrXuDjHXx6ys4O1Rlj\nYhxXstfn5UjjvQoaq30cINhw4TZXoJoAHh+Ie+RtMzacahVK7cGSIHhRHtfn\n5LjFfrjEXTbxruoygpsDctxCz7bnm2Lh4ONjqC+xI2YYYEb3zBiTMBdXJurX\n9l6Asw3vMoMmASAiuHiQHVzMVeOFQMJ71DnCAfAuVqHXCU7t5QK4YOuNu5kmca\nwEd2XcOQrS9zPn4V5wVvDtfSdwlITzAgMBAAECggEBAKTmjaS6tkK8BlPXClTQ\n2vpz/N6uxDeS35mXpqasqskVlaAidgg/sWqpjXDbXr93otIMLlWsM+X0CqMDgSXK\nVAAm7VCL5f5dK92MQMqHSCJ8a8aV6aRD6LL37WGU/qFakd3QhGa5WV2s+kSLHU\nMcVATtG+7c6f2uIjKrXnqax/IgGrqsKitI9XvWQeYPiY8AAdqHdkADMjpOuaAY\nxtHkRBQtXfa622PzaNjRAoGBANjANRKLBtcxmW4foK5ILTuFkuaHgjf661r7abK\nAOcjKi7UtI0tiC7BjPm1MihneBN9qjGStrMhqe8+P2vnb4HuA6XelSu/6dcFcCvQ\nscxLCuSiGZUA4BcNNydQHqoXdpw9OpiuqnXvNcKcMBxebWkSKvuQK6s+fPiLrHkH\nAoGBANWGQDKhPiVZsjbxBdDfBHbBP9EBx3iNnR3s2oiQqXiXAMiUbhntxBBs9t\n+gFR+4qUBLEyO2TQYlL+OHdCvpRr5YQb7A8PtMpAeNkJKuQj70gJvxBHuJdqiB\nrLjGkxl1YULT/re3G3uaKiPnFyxW3c4EFyYb8PoAqBgGAoGBAMXlTUrSofDK\n-----END PRIVATE KEY-----"
+        FIREBASE_CLIENT_EMAIL=test@test-project.iam.gserviceaccount.com
+        FIREBASE_CLIENT_ID=123456789
+        FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
+        FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
+        
+        # OpenAI Configuration (Mock for CI)
+        OPENAI_API_KEY=sk-test-key-for-ci-testing-only
+        
+        # JWT Configuration
+        JWT_SECRET_KEY=test-jwt-secret-key-for-ci-testing-only
+        JWT_ALGORITHM=HS256
+        JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+        
+        # API Configuration
+        API_V1_STR=/api/v1
+        PROJECT_NAME=Klymate AI Backend Test
+        EOF
+
+    - name: Run linting
+      working-directory: ./backend
+      run: |
+        pip install flake8 black isort
+        # Check code formatting
+        black --check --diff .
+        # Check import sorting
+        isort --check-only --diff .
+        # Run linting
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Run tests with coverage
+      working-directory: ./backend
+      env:
+        ENVIRONMENT: test
+      run: |
+        # Run tests with coverage and parallel execution
+        python -m pytest \
+          --cov=app \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-report=term-missing \
+          --cov-fail-under=80 \
+          -v \
+          -x \
+          --tb=short \
+          tests/
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/coverage.xml
+        directory: ./backend
+        flags: backend
+        name: backend-coverage
+        fail_ci_if_error: false
+
+    - name: Archive test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: |
+          backend/coverage.xml
+          backend/htmlcov/
+          backend/pytest-report.xml
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install security tools
+      run: |
+        pip install bandit safety
+
+    - name: Run security scan with bandit
+      working-directory: ./backend
+      run: |
+        bandit -r app/ -f json -o bandit-report.json || true
+        bandit -r app/ -f txt
+
+    - name: Check for known vulnerabilities
+      working-directory: ./backend
+      run: |
+        safety check --json --output safety-report.json || true
+        safety check
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          backend/bandit-report.json
+          backend/safety-report.json
+
+  build-test:
+    runs-on: ubuntu-latest
+    needs: [test, security-scan]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image
+      working-directory: ./backend
+      run: |
+        docker build -t klymate-backend:test .
+
+    - name: Test Docker image
+      run: |
+        # Start container in background
+        docker run -d --name test-container -p 8000:8000 \
+          -e ENVIRONMENT=test \
+          -e TIDB_HOST=localhost \
+          -e TIDB_PORT=4000 \
+          -e TIDB_USER=test \
+          -e TIDB_PASSWORD=test \
+          -e TIDB_DATABASE=test \
+          -e REDIS_URL=redis://localhost:6379 \
+          klymate-backend:test
+        
+        # Wait for container to start
+        sleep 10
+        
+        # Test health endpoint
+        curl -f http://localhost:8000/health || exit 1
+        
+        # Stop container
+        docker stop test-container
+        docker rm test-container
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [test, security-scan, build-test]
+    if: always()
+    
+    steps:
+    - name: Notify on success
+      if: ${{ needs.test.result == 'success' && needs.security-scan.result == 'success' && needs.build-test.result == 'success' }}
+      run: |
+        echo "✅ All CI checks passed successfully!"
+        
+    - name: Notify on failure
+      if: ${{ needs.test.result == 'failure' || needs.security-scan.result == 'failure' || needs.build-test.result == 'failure' }}
+      run: |
+        echo "❌ CI pipeline failed. Check the logs above for details."
+        exit 1

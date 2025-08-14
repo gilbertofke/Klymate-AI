@@ -628,18 +628,56 @@ class CacheMetrics:
 
 
 # Convenience functions for backward compatibility
-async def cached(key: str, ttl: int = 3600):
+def cached(key_prefix: str = "default", ttl: int = 3600, expire: int = None):
     """
-    Decorator for caching function results.
+    Decorator for caching function results (backward compatibility).
     
     Args:
-        key: Cache key prefix
+        key_prefix: Cache key prefix
         ttl: Time to live in seconds
+        expire: Alternative name for ttl (for backward compatibility)
     """
-    return cache_result(ttl=ttl, key_prefix=key)
+    # Use expire if provided, otherwise use ttl
+    cache_ttl = expire if expire is not None else ttl
+    return cache_result(ttl=cache_ttl, key_prefix=key_prefix)
 
 
-async def cache_invalidate(pattern: str) -> int:
+def cache_invalidate(*patterns: str):
+    """
+    Decorator to invalidate cache patterns after function execution.
+    
+    Args:
+        *patterns: Cache patterns to invalidate
+        
+    Returns:
+        Decorated function
+    """
+    def decorator(func: Callable):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                # Execute the original function
+                result = await func(*args, **kwargs)
+                
+                # Invalidate cache patterns after successful execution
+                for pattern in patterns:
+                    try:
+                        await invalidate_cache(pattern)
+                        logger.debug(f"Invalidated cache pattern: {pattern}")
+                    except Exception as e:
+                        logger.error(f"Failed to invalidate cache pattern {pattern}: {str(e)}")
+                
+                return result
+                
+            except Exception as e:
+                logger.error(f"Error in cache_invalidate decorator for {func.__name__}: {str(e)}")
+                raise
+        
+        return wrapper
+    return decorator
+
+
+async def invalidate_cache_pattern(pattern: str) -> int:
     """
     Invalidate cache entries matching pattern.
     
