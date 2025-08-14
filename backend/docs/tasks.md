@@ -208,7 +208,8 @@
   - Create end-to-end test scenarios for critical user journeys
   - _Requirements: All requirements validation_
 
-- [ ] 11. Configure deployment and CI/CD pipeline
+- [x] 11. Configure deployment and CI/CD pipeline
+
 - [x] 11.1 Set up containerization and deployment configuration
 
 
@@ -241,7 +242,8 @@
 
 
 
-- [ ] 12. Implement carbon credits system
+- [x] 12. Implement carbon credits system
+
 - [x] 12.1 Create carbon credits data models and verification system
 
 
@@ -257,11 +259,15 @@
 
 
 
+
   - _Requirements: 11.1, 11.2, 11.3, 11.6, 12.1, 12.2, 12.3_
 
 - [ ] 12.2 Build carbon credits service and API endpoints
   - Implement CarbonCreditsService for credit calculations and verification
+
+
   - Create credit earning logic based on verified carbon savings
+
   - Build redemption system for cash-out and carbon offset purchases
   - Add carbon credits API endpoints (balance, transactions, redemption)
   - Implement real-time rate updates from carbon market APIs
