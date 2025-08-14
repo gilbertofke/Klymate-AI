@@ -9,6 +9,14 @@ from .base import BaseModel, TimestampMixin, SoftDeleteMixin, AuditMixin
 from .user import User
 from .habit import HabitCategory, CategoryType
 from .user_habit import UserHabit
+from .ai_conversation import AIConversation
+from .badge import Badge, UserBadge, BadgeCategory, BadgeTrigger
+from .carbon_credit import (
+    CarbonCreditRate, UserCarbonCredits, CarbonCreditTransaction,
+    CarbonCreditRedemption, CarbonVerificationRule,
+    RateType, TransactionType, VerificationStatus, VerificationMethod,
+    RedemptionType, RedemptionStatus
+)
 
 __all__ = [
     "BaseModel",
@@ -18,5 +26,21 @@ __all__ = [
     "User",
     "HabitCategory",
     "CategoryType", 
-    "UserHabit"
+    "UserHabit",
+    "AIConversation",
+    "Badge",
+    "UserBadge",
+    "BadgeCategory",
+    "BadgeTrigger",
+    "CarbonCreditRate",
+    "UserCarbonCredits",
+    "CarbonCreditTransaction",
+    "CarbonCreditRedemption",
+    "CarbonVerificationRule",
+    "RateType",
+    "TransactionType",
+    "VerificationStatus",
+    "VerificationMethod",
+    "RedemptionType",
+    "RedemptionStatus"
 ]

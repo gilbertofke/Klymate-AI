@@ -240,14 +240,21 @@
   - _Requirements: 9.2, 9.3_
 
 
+
 - [ ] 12. Implement carbon credits system
-- [ ] 12.1 Create carbon credits data models and verification system
+- [x] 12.1 Create carbon credits data models and verification system
+
+
+
   - Design CarbonCreditTransaction and UserCarbonCredits SQLAlchemy models
   - Create database migrations for carbon credits tables
   - Implement verification rules and rate management system
   - Build CarbonCreditsRepository for credit operations
   - Create seed data for initial credit rates and verification rules
   - Write unit tests for carbon credits models and calculations
+
+
+
 
 
   - _Requirements: 11.1, 11.2, 11.3, 11.6, 12.1, 12.2, 12.3_

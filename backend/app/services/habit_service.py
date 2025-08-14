@@ -37,7 +37,7 @@ class HabitService:
     
     async def log_habit(self, user_id: int, habit_data: HabitCreate) -> UserHabit:
         """
-        Log a new habit entry with CO2 savings calculation.
+        Log a new habit entry with CO2 savings calculation and carbon credits processing.
         
         Args:
             user_id: The ID of the user logging the habit
@@ -70,6 +70,13 @@ class HabitService:
             # Create habit entry
             habit_entry = await self.habit_repository.create_habit_entry(user_id, entry_data)
             
+            # Process carbon credits for this habit (async background task)
+            try:
+                await self._process_carbon_credits(habit_entry)
+            except Exception as e:
+                # Log error but don't fail the habit logging
+                logger.error(f"Failed to process carbon credits for habit {habit_entry.id}: {str(e)}")
+            
             # Invalidate user-specific cache entries
             await CacheInvalidationStrategy.invalidate_user_cache(user_id)
             
@@ -85,6 +92,32 @@ class HabitService:
         except Exception as e:
             logger.error(f"Error logging habit for user {user_id}: {str(e)}")
             raise
+    
+    async def _process_carbon_credits(self, habit_entry: UserHabit) -> None:
+        """
+        Process carbon credits for a habit entry.
+        
+        Args:
+            habit_entry: The habit entry to process for credits
+        """
+        try:
+            # Import here to avoid circular imports
+            from app.services.carbon_credits_service import CarbonCreditsService
+            
+            # Create carbon credits service
+            credits_service = CarbonCreditsService(self.db)
+            
+            # Process habit for credits
+            transaction = await credits_service.process_habit_for_credits(habit_entry)
+            
+            if transaction:
+                logger.info(f"Created carbon credit transaction {transaction.id} for habit {habit_entry.id}")
+            else:
+                logger.debug(f"No carbon credits awarded for habit {habit_entry.id}")
+                
+        except Exception as e:
+            logger.error(f"Error processing carbon credits for habit {habit_entry.id}: {str(e)}")
+            # Don't re-raise to avoid breaking habit logging
     
     async def get_user_habit_history(
         self,

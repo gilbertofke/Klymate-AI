@@ -65,11 +65,12 @@ class User(BaseModel, SoftDeleteMixin, AuditMixin):
     onboarding_data = Column(Text, nullable=True)  # JSON string for survey responses
     preferences = Column(Text, nullable=True)  # JSON string for user preferences
     
-    # Relationships - Updated for habit tracking, AI conversations, and badges
+    # Relationships - Updated for habit tracking, AI conversations, badges, and carbon credits
     user_habits = relationship("UserHabit", back_populates="user", cascade="all, delete-orphan")
     # AI conversations relationship - using string reference to avoid circular imports
     ai_conversations = relationship("AIConversation", back_populates="user", cascade="all, delete-orphan", lazy="dynamic")
     user_badges = relationship("UserBadge", back_populates="user", cascade="all, delete-orphan")
+    carbon_credits = relationship("UserCarbonCredits", back_populates="user", uselist=False, cascade="all, delete-orphan")
     
     def set_password(self, password: str) -> None:
         """
