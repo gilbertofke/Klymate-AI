@@ -29,7 +29,7 @@ railway variables set TIDB_PORT="$TIDB_PORT"
 railway variables set TIDB_USER="$TIDB_USER"
 railway variables set TIDB_PASSWORD="$TIDB_PASSWORD"
 railway variables set TIDB_DATABASE="$TIDB_DATABASE"
-railway variables set TIDB_SSL_CA="./tidb-ca.pem"
+railway variables set TIDB_SSL_CA="./private-docs/tidb-ca.pem"
 railway variables set TIDB_SSL_VERIFY="true"
 
 # Redis configuration (Railway provides Redis addon)

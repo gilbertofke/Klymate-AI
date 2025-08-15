@@ -44,7 +44,7 @@ services:
           name: tidb-cloud
           property: database
       - key: TIDB_SSL_CA
-        value: ./tidb-ca.pem
+        value: ./private-docs/tidb-ca.pem
       - key: TIDB_SSL_VERIFY
         value: true
       - key: REDIS_URL
@@ -93,7 +93,7 @@ pip install -r requirements.txt
 
 echo "🔧 Setting up SSL certificates..."
 # Copy TiDB CA certificate if it exists
-if [ -f "tidb-ca.pem" ]; then
+if [ -f "private-docs/tidb-ca.pem" ]; then
     echo "✅ TiDB CA certificate found"
 else
     echo "⚠️  TiDB CA certificate not found - download from TiDB Cloud"

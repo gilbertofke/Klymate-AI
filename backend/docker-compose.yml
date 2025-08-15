@@ -24,7 +24,7 @@ services:
       - DEBUG=${DEBUG:-false}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
-      - ./tidb-ca.pem:/app/tidb-ca.pem:ro
+      - ./private-docs/tidb-ca.pem:/app/tidb-ca.pem:ro
       - ./firebase-credentials.json:/app/firebase-credentials.json:ro
     depends_on:
       - redis

@@ -35,7 +35,7 @@ SYNC_DATABASE_URL = (
 ASYNC_DATABASE_URL = SYNC_DATABASE_URL  # Use sync URL for both in hackathon mode
 
 # TiDB Cloud engine configuration with proper SSL handling
-CA_CERT_PATH = os.path.join(os.path.dirname(__file__), "tidb-ca.pem")
+CA_CERT_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "private-docs", "tidb-ca.pem")
 
 engine_config = {
     "pool_size": 5,
