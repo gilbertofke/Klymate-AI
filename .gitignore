@@ -119,15 +119,16 @@ frontend/build/
 *.tmp
 *.temp
 
-# Team documentation (private - contains credentials)
-backend/team-docs/TEAM_*.md
-backend/team-docs/README.md
-backend/team-docs/HACKATHON_SETUP.md
+# Private documentation and sensitive files
+backend/private-docs/
 backend/.env.hackathon
-backend/ca-cert.pem
-backend/create_team_databases.py
+backend/.env.production
+backend/.env.staging
+backend/.env.test
+*.pem
+*.crt
+*.key
 
-# Keep public architecture guides
-!backend/team-docs/FRONTEND_ARCHITECTURE_GUIDE.md
-!backend/team-docs/BLOCKCHAIN_CARBON_CREDITS_PLAN.md
-!backend/team-docs/PASSWORD_SECURITY_SUMMARY.md
+# Kiro specs and internal documentation
+.kiro/
+specs/
