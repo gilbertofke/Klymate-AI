@@ -83,12 +83,44 @@ Klymate AI is built with a modern, scalable architecture:
 - OpenAI API key
 - Firebase project
 
+### Project Structure
+
+```
+klymate-ai/
+├── backend/                    # FastAPI backend application
+│   ├── app/                   # Core application code
+│   │   ├── api/v1/endpoints/  # API route handlers
+│   │   ├── core/              # Configuration and database
+│   │   ├── models/            # SQLAlchemy database models
+│   │   ├── repositories/      # Data access layer
+│   │   ├── schemas/           # Pydantic request/response models
+│   │   ├── services/          # Business logic layer
+│   │   └── utils/             # Utility functions and helpers
+│   ├── alembic/               # Database migrations
+│   ├── tests/                 # Comprehensive test suite
+│   ├── deploy/                # Deployment scripts (Railway, Render, AWS)
+│   ├── scripts/               # Utility and maintenance scripts
+│   ├── private-docs/          # Private documentation (gitignored)
+│   ├── requirements.txt       # Production dependencies
+│   ├── requirements-dev.txt   # Development dependencies
+│   ├── docker-compose.yml     # Container orchestration
+│   └── README.md              # Backend-specific documentation
+├── frontend/                   # React/Vue frontend (in development)
+│   ├── src/                   # Source code
+│   ├── public/                # Static assets
+│   ├── package.json           # Node.js dependencies
+│   └── README.md              # Frontend documentation
+├── .github/workflows/         # CI/CD pipeline configuration
+├── CONTRIBUTING.md            # Development guidelines
+└── README.md                  # This file
+```
+
 ### Backend Setup
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-org/klymate-ai.git
-   cd klymate-ai
+   git clone https://github.com/gilbertofke/Klymate-AI.git
+   cd Klymate-AI
    ```
 
 2. **Set up the backend environment**
@@ -102,22 +134,44 @@ Klymate AI is built with a modern, scalable architecture:
 3. **Configure environment variables**
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration
+   # Edit .env with your TiDB, Firebase, and OpenAI credentials
    ```
 
-4. **Run the development server**
+4. **Set up the database**
    ```bash
-   python main.py
+   # Run database migrations
+   alembic upgrade head
+   
+   # Optional: Seed with sample data
+   python -c "from app.utils.seed_data import seed_database; seed_database()"
+   ```
+
+5. **Run the development server**
+   ```bash
+   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 The API will be available at `http://localhost:8000` with interactive docs at `/docs`.
 
-### Frontend Setup
+### Frontend Setup (Coming Soon)
 
 ```bash
 cd frontend
 npm install
 npm run dev
+```
+
+*Note: Frontend development is in progress. The backend API is fully functional and can be tested via the interactive documentation at `/docs`.*
+
+### Docker Setup (Alternative)
+
+```bash
+# Build and run with Docker Compose
+docker-compose up --build
+
+# Or run just the backend
+docker build -t klymate-backend ./backend
+docker run -p 8000:8000 klymate-backend
 ```
 
 ## 📖 API Documentation

@@ -15,23 +15,56 @@ Klymate AI is a comprehensive platform that combines:
 
 ```
 Klymate-AI/
-├── backend/                 # FastAPI backend application
-│   ├── routes/             # API endpoint definitions
-│   ├── models/             # Database models (SQLAlchemy)
-│   ├── utils/              # Helper functions and utilities
-│   ├── main.py             # FastAPI application entry point
-│   ├── config.py           # Configuration management
-│   └── requirements.txt    # Python dependencies
-├── frontend/               # Frontend application (React/Vue)
-├── .kiro/                  # Project specifications and documentation
-│   └── specs/
-│       └── klymate-ai-backend/
-│           ├── requirements.md  # Project requirements
-│           ├── design.md       # System design document
-│           └── tasks.md        # Implementation tasks
-├── README.md               # Project overview and setup
-└── CONTRIBUTING.md         # This file
+├── backend/                    # FastAPI backend application
+│   ├── app/                   # Core application code
+│   │   ├── api/v1/endpoints/  # API route handlers
+│   │   ├── core/              # Configuration and database setup
+│   │   ├── models/            # SQLAlchemy database models
+│   │   ├── repositories/      # Data access layer (Repository pattern)
+│   │   ├── schemas/           # Pydantic request/response models
+│   │   ├── services/          # Business logic layer
+│   │   └── utils/             # Utility functions and helpers
+│   ├── alembic/               # Database migrations
+│   ├── tests/                 # Comprehensive test suite
+│   │   ├── unit/              # Unit tests
+│   │   ├── integration/       # Integration tests
+│   │   └── e2e/               # End-to-end tests
+│   ├── deploy/                # Deployment scripts (Railway, Render, AWS)
+│   ├── scripts/               # Utility and maintenance scripts
+│   ├── private-docs/          # Private documentation (gitignored)
+│   │   ├── project-specs/     # Original project specifications
+│   │   ├── team-docs/         # Team collaboration documents
+│   │   └── task-summaries/    # Development task summaries
+│   ├── requirements.txt       # Production dependencies
+│   ├── requirements-dev.txt   # Development dependencies
+│   ├── docker-compose.yml     # Container orchestration
+│   ├── Dockerfile             # Container definition
+│   └── README.md              # Backend-specific documentation
+├── frontend/                   # Frontend application (in development)
+│   ├── src/                   # Source code
+│   │   ├── components/        # Reusable UI components
+│   │   ├── pages/             # Page components
+│   │   ├── services/          # API service layer
+│   │   ├── utils/             # Frontend utilities
+│   │   └── styles/            # CSS/styling files
+│   ├── public/                # Static assets
+│   ├── package.json           # Node.js dependencies
+│   └── README.md              # Frontend documentation
+├── .github/workflows/         # CI/CD pipeline configuration
+├── .gitignore                 # Git ignore rules
+├── LICENSE                    # MIT License
+├── README.md                  # Project overview and setup
+└── CONTRIBUTING.md            # This file (development guidelines)
 ```
+
+### Key Architecture Principles
+
+- **Clean Architecture**: Separation of concerns with distinct layers
+- **Repository Pattern**: Data access abstraction for testability
+- **Service Layer**: Business logic isolation
+- **Dependency Injection**: Loose coupling between components
+- **Test-Driven Development**: Comprehensive test coverage
+- **Security First**: Proper authentication, authorization, and data protection
 
 ## 🚀 Getting Started
 
@@ -58,18 +91,29 @@ Klymate-AI/
    python -m venv venv
    source venv/bin/activate  # Windows: venv\Scripts\activate
    pip install -r requirements.txt
+   pip install -r requirements-dev.txt  # For development tools
    ```
 
 3. **Configure Environment Variables**
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration values
+   # Edit .env with your TiDB, Firebase, and OpenAI credentials
    ```
 
-4. **Set up Frontend Environment**
+4. **Set up Database**
+   ```bash
+   # Run database migrations
+   alembic upgrade head
+   
+   # Optional: Seed with sample data for development
+   python -c "from app.utils.seed_data import seed_database; seed_database()"
+   ```
+
+5. **Set up Frontend Environment** *(Coming Soon)*
    ```bash
    cd frontend
    npm install
+   # Frontend is currently in development
    ```
 
 ## 🔄 Development Workflow
@@ -101,9 +145,14 @@ We use a **Git Flow** approach with the following branches:
    ```bash
    # Backend tests
    cd backend
-   pytest
+   python run_tests.py  # Runs full test suite with coverage
    
-   # Frontend tests
+   # Or run specific test categories
+   pytest tests/unit/           # Unit tests only
+   pytest tests/integration/    # Integration tests only
+   pytest tests/e2e/           # End-to-end tests only
+   
+   # Frontend tests (when available)
    cd frontend
    npm test
    ```
@@ -170,14 +219,19 @@ class UserHabit(BaseModel):
 - **Test Data**: Use factories for consistent test data generation
 
 ```bash
-# Run all tests
-pytest
+# Run all tests with coverage report
+python run_tests.py
 
-# Run with coverage
-pytest --cov=.
+# Run specific test categories
+pytest tests/unit/ -v
+pytest tests/integration/ -v
+pytest tests/e2e/ -v
 
 # Run specific test file
-pytest tests/test_habits.py
+pytest tests/test_habits.py -v
+
+# Run tests with detailed coverage
+pytest --cov=app --cov-report=html
 ```
 
 ### Frontend Testing
@@ -196,22 +250,33 @@ npm run test:e2e
 
 ## 📋 Task Management
 
-We use a sprint-based approach with tasks defined in `.kiro/specs/klymate-ai-backend/tasks.md`:
+We use GitHub Issues and Projects for task management. Development specifications and internal documentation are maintained in the `private-docs/` directory.
 
-### Current Sprint Structure
+### Development Workflow
 
-- **Sprint 1**: Foundation & Core Infrastructure
-- **Sprint 2**: User Management & Habit Foundation  
-- **Sprint 3**: AI Coaching & Gamification
-- **Sprint 4**: Carbon Credits & Deployment
-- **Sprint 5**: Testing & Final Integration
+- **GitHub Issues**: Feature requests, bug reports, and tasks
+- **GitHub Projects**: Sprint planning and progress tracking
+- **Private Documentation**: Detailed specifications and team notes (not in public repo)
 
 ### Picking Up Tasks
 
-1. Check the tasks.md file for available tasks
-2. Look for tasks marked as `[ ]` (not started)
-3. Comment on the task or create an issue to claim it
-4. Update task status to `[x]` when completed
+1. Check GitHub Issues for available tasks
+2. Look for issues labeled `good first issue` or `help wanted`
+3. Comment on the issue to claim it
+4. Create a feature branch and start development
+5. Submit a Pull Request when ready for review
+
+### Issue Labels
+
+- `bug`: Something isn't working
+- `enhancement`: New feature or request
+- `good first issue`: Good for newcomers
+- `help wanted`: Extra attention is needed
+- `documentation`: Improvements or additions to documentation
+- `backend`: Backend-related tasks
+- `frontend`: Frontend-related tasks
+- `ai`: AI/ML related features
+- `database`: Database schema or query improvements
 
 ## 🔍 Code Review Process
 
@@ -284,8 +349,8 @@ Contributors will be recognized in:
 
 - **GitHub Issues**: For bugs and feature requests
 - **GitHub Discussions**: For questions and general discussion
-- **Documentation**: Check `.kiro/specs/` for detailed specifications
-- **Code Comments**: Look for inline documentation
+- **Backend README**: Check `backend/README.md` for setup and API documentation
+- **Code Comments**: Look for inline documentation and docstrings
 
 ## 🤝 Code of Conduct
 
