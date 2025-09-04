@@ -129,6 +129,12 @@ backend/.env.test
 *.crt
 *.key
 
+# Firebase service account keys (NEVER commit these!)
+*firebase-adminsdk*.json
+*serviceAccountKey*.json
+*service-account*.json
+firebase-config.json
+
 # Kiro specs and internal documentation
 .kiro/
 specs/
