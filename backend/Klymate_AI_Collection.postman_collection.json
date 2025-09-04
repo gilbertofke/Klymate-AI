@@ -1,0 +1,545 @@
+{
+  "info": {
+    "name": "Klymate AI Backend API",
+    "description": "Comprehensive API testing collection for Klymate AI Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "\ud83d\udd0d Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "API Documentation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "docs"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd10 Authentication",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/auth/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "auth",
+                "profile"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udf31 Habit Tracking",
+      "item": [
+        {
+          "name": "Get Habit Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/habits/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "habits",
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Log Habit Entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": 1,\n  \"quantity\": 5.0,\n  \"notes\": \"Cycled to work today\",\n  \"logged_at\": \"2024-01-15T08:30:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/habits/log",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "habits",
+                "log"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Habit History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/habits/history?limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "habits",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Habit Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/habits/statistics?timeframe=week",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "habits",
+                "statistics"
+              ],
+              "query": [
+                {
+                  "key": "timeframe",
+                  "value": "week"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83e\udd16 AI Coach",
+      "item": [
+        {
+          "name": "AI Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/ai/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "ai",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Chat with AI Coach",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"How can I reduce my carbon footprint from transportation?\",\n  \"session_id\": \"test_session_123\",\n  \"include_history\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/ai/chat",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "ai",
+                "chat"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get AI Suggestions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/ai/suggestions?focus_area=transport&limit=5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "ai",
+                "suggestions"
+              ],
+              "query": [
+                {
+                  "key": "focus_area",
+                  "value": "transport"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcb0 Carbon Credits",
+      "item": [
+        {
+          "name": "Get Exchange Rates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/credits/rates",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "credits",
+                "rates"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Balance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/credits/balance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "credits",
+                "balance"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Calculate Credits",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activity_type\": \"cycling\",\n  \"co2_saved\": 5.2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/credits/calculate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "credits",
+                "calculate"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udfc6 Gamification",
+      "item": [
+        {
+          "name": "Gamification Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/gamification/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "gamification",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/gamification/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "gamification",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Badges",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/gamification/badges",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "gamification",
+                "badges"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/gamification/leaderboard?limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "gamification",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcca Analytics",
+      "item": [
+        {
+          "name": "Analytics Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/analytics/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "analytics",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Dashboard Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/analytics/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "analytics",
+                "dashboard"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Trends",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/analytics/trends?days_back=30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "analytics",
+                "trends"
+              ],
+              "query": [
+                {
+                  "key": "days_back",
+                  "value": "30"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

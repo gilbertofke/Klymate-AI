@@ -29,6 +29,14 @@ class FirebaseConfig:
             return
         
         try:
+            # Check if we have real Firebase credentials (not placeholder values)
+            if (settings.FIREBASE_PROJECT_ID == "your_actual_project_id" or 
+                "your_actual" in settings.FIREBASE_PROJECT_ID or
+                "dev-key" in settings.FIREBASE_PRIVATE_KEY_ID):
+                logger.warning("Firebase Admin SDK credentials are placeholder values. Skipping initialization.")
+                cls._initialized = False
+                return
+            
             # Create service account credentials from environment variables
             service_account_info = {
                 "type": "service_account",
@@ -52,7 +60,8 @@ class FirebaseConfig:
             
         except Exception as e:
             logger.error(f"Failed to initialize Firebase Admin SDK: {str(e)}")
-            raise
+            cls._initialized = False
+            # Don't raise the exception, just log it
     
     @classmethod
     def get_app(cls) -> firebase_admin.App:
@@ -67,8 +76,11 @@ class FirebaseConfig:
         return cls._initialized
 
 
-# Initialize Firebase on module import
+# Initialize Firebase on module import (skip in test mode)
 try:
-    FirebaseConfig.initialize()
+    if not settings.TESTING_MODE:
+        FirebaseConfig.initialize()
+    else:
+        logger.info("Skipping Firebase initialization in test mode")
 except Exception as e:
     logger.warning(f"Firebase initialization failed on import: {str(e)}")

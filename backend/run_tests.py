@@ -119,7 +119,7 @@ def test_habit_create_schema():
         with open(unit_test_file, 'w') as f:
             f.write(unit_test_content)
     
-    # Try to run pytest on specific unit tests
+    # Try to run pytest on specific unit tests (without coverage)
     return run_command("python -m pytest tests/test_core_unit.py -v --tb=short", "Unit Tests")
 
 def main():

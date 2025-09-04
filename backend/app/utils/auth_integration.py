@@ -63,11 +63,17 @@ class AuthIntegration:
                 }
             }
             
-        except (FirebaseAuthError, JWTError) as e:
-            logger.error(f"Authentication failed: {str(e)}")
+        except FirebaseAuthError as e:
+            logger.warning(f"Firebase authentication failed: {str(e)}")
+            # If Firebase Admin SDK is not configured, return None to trigger fallback
+            if "not configured" in str(e).lower() or "not initialized" in str(e).lower():
+                logger.info("Firebase Admin SDK not configured, authentication will use fallback")
+            return None
+        except JWTError as e:
+            logger.error(f"JWT generation failed: {str(e)}")
             return None
         except Exception as e:
-            logger.error(f"Unexpected authentication error: {str(e)}")
+            logger.warning(f"Authentication error (will use fallback): {str(e)}")
             return None
     
     @staticmethod

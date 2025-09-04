@@ -76,10 +76,35 @@ class AsyncSessionWrapper:
         class AsyncResult:
             def scalar(self):
                 return result.scalar()
+            def scalar_one_or_none(self):
+                return result.scalar_one_or_none()
+            def scalars(self):
+                class ScalarsResult:
+                    def all(self):
+                        return result.scalars().all()
+                return ScalarsResult()
         return AsyncResult()
     
     async def close(self):
         self.session.close()
+    
+    async def commit(self):
+        self.session.commit()
+    
+    async def rollback(self):
+        self.session.rollback()
+    
+    async def refresh(self, obj):
+        self.session.refresh(obj)
+    
+    def add(self, obj):
+        self.session.add(obj)
+    
+    def add_all(self, objs):
+        self.session.add_all(objs)
+    
+    async def delete(self, obj):
+        self.session.delete(obj)
     
     def begin(self):
         return self.session.begin()

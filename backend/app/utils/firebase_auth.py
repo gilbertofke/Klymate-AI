@@ -37,6 +37,11 @@ class FirebaseAuth:
             FirebaseAuthError: If token verification fails
         """
         try:
+            # Check if Firebase is properly initialized
+            if not FirebaseConfig.is_initialized():
+                logger.warning("Firebase Admin SDK not initialized. Cannot verify token.")
+                raise FirebaseAuthError("Firebase Admin SDK not configured")
+            
             # Ensure Firebase is initialized
             FirebaseConfig.get_app()
             

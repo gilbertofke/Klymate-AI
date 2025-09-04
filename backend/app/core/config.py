@@ -67,32 +67,25 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = Field(default="gpt-3.5-turbo", env="OPENAI_MODEL")
     OPENAI_EMBEDDING_MODEL: str = Field(default="text-embedding-ada-002", env="OPENAI_EMBEDDING_MODEL")
     
-    # Redis Configuration
-    REDIS_URL: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")
-    REDIS_HOST: str = Field(default="localhost", env="REDIS_HOST")
-    REDIS_PORT: int = Field(default=6379, env="REDIS_PORT")
-    REDIS_DB: int = Field(default=0, env="REDIS_DB")
-    REDIS_PASSWORD: Optional[str] = Field(default=None, env="REDIS_PASSWORD")
-    
     # Logging Configuration
     LOG_LEVEL: str = Field(default="INFO", env="LOG_LEVEL")
     LOG_FORMAT: str = Field(default="json", env="LOG_FORMAT")
     
     # CORS Configuration
-    ALLOWED_ORIGINS: str = Field(default="*", env="ALLOWED_ORIGINS")
-    ALLOWED_METHODS: str = Field(default="*", env="ALLOWED_METHODS")
-    ALLOWED_HEADERS: str = Field(default="*", env="ALLOWED_HEADERS")
+    ALLOWED_ORIGINS: str = Field(default="http://localhost:3000,http://127.0.0.1:3000,https://localhost:3000", env="ALLOWED_ORIGINS")
+    ALLOWED_METHODS: str = Field(default="GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH", env="ALLOWED_METHODS")
+    ALLOWED_HEADERS: str = Field(default="Accept,Accept-Language,Content-Language,Content-Type,Authorization,X-Requested-With,X-Firebase-Auth,Firebase-Instance-ID-Token,X-Firebase-AppCheck", env="ALLOWED_HEADERS")
+    CORS_MAX_AGE: int = Field(default=600, env="CORS_MAX_AGE")
+    CORS_DEBUG_LOGGING: bool = Field(default=True, env="CORS_DEBUG_LOGGING")
+    
+    # Testing Configuration
+    TESTING_MODE: bool = Field(default=False, env="TESTING_MODE")
+    MOCK_EXTERNAL_APIS: bool = Field(default=False, env="MOCK_EXTERNAL_APIS")
     
     # Rate Limiting
     RATE_LIMIT_REQUESTS: int = Field(default=100, env="RATE_LIMIT_REQUESTS")
     RATE_LIMIT_WINDOW: int = Field(default=60, env="RATE_LIMIT_WINDOW")
     
-    model_config = ConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=True,
-        extra="allow"
-    )
     # Cache Configuration (Task 9.2)
     CACHE_ENABLED: bool = Field(default=True, env="CACHE_ENABLED")
     CACHE_DEFAULT_TTL: int = Field(default=3600, env="CACHE_DEFAULT_TTL")  # 1 hour
@@ -104,6 +97,13 @@ class Settings(BaseSettings):
     TRENDS_CACHE_TTL: int = Field(default=3600, env="TRENDS_CACHE_TTL")  # 1 hour
     LEADERBOARD_CACHE_TTL: int = Field(default=900, env="LEADERBOARD_CACHE_TTL")  # 15 minutes
     PLATFORM_STATS_CACHE_TTL: int = Field(default=7200, env="PLATFORM_STATS_CACHE_TTL")  # 2 hours
+
+    model_config = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="allow"
+    )
 
 # Global settings instance
 settings = Settings()

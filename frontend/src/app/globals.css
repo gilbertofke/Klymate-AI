@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-background-secondary text-text-primary;
+  }
+}
+
+@layer components {
+  /* Button Components */
+  .btn-primary {
+    @apply bg-gradient-button text-white border-none rounded-button px-6 py-3 font-semibold transition-all duration-200 hover:shadow-gradient hover:-translate-y-0.5;
+  }
+  
+  .btn-secondary {
+    @apply bg-background-secondary text-text-primary border border-border-light rounded-button px-6 py-3 font-medium hover:bg-gray-50 transition-colors;
+  }
+  
+  .btn-success {
+    @apply bg-status-success text-white rounded-button px-4 py-2 text-sm font-semibold hover:bg-green-600 transition-colors;
+  }
+  
+  .btn-ghost {
+    @apply text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-button px-4 py-2 transition-colors;
+  }
+  
+  /* Card Components */
+  .card {
+    @apply bg-background-primary rounded-card shadow-card border border-border-light p-6;
+  }
+  
+  .card-hover {
+    @apply hover:shadow-card-hover transition-shadow duration-200;
+  }
+  
+  .card-gradient-header {
+    @apply bg-gradient-primary text-white rounded-t-card p-6;
+  }
+  
+  /* Status Components */
+  .status-active {
+    @apply bg-status-success text-white px-3 py-1 rounded-badge text-xs font-semibold;
+  }
+  
+  .status-inactive {
+    @apply bg-gray-100 text-text-secondary px-3 py-1 rounded-badge text-xs font-medium;
+  }
+  
+  .status-warning {
+    @apply bg-status-warning text-white px-3 py-1 rounded-badge text-xs font-semibold;
+  }
+  
+  /* Form Components */
+  .form-input {
+    @apply block w-full rounded-button border-border-light shadow-sm focus:border-primary-green focus:ring-primary-green focus:ring-1 sm:text-sm;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-text-primary mb-2;
+  }
+  
+  .form-error {
+    @apply text-status-error text-sm mt-1;
+  }
+  
+  /* Navigation Components */
+  .nav-link {
+    @apply flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors;
+  }
+  
+  .nav-link-active {
+    @apply bg-primary-green/10 text-primary-green;
+  }
+  
+  .nav-link-inactive {
+    @apply text-text-secondary hover:text-text-primary hover:bg-gray-50;
+  }
+  
+  /* Metric Card Components */
+  .metric-card {
+    @apply card p-6 hover:shadow-card-hover transition-all duration-200;
+  }
+  
+  .metric-icon {
+    @apply w-10 h-10 rounded-lg flex items-center justify-center mb-4;
+  }
+  
+  .metric-value {
+    @apply text-2xl font-bold text-text-primary mb-1;
+  }
+  
+  .metric-subtitle {
+    @apply text-sm text-text-secondary;
+  }
+  
+  /* Activity Item Components */
+  .activity-item {
+    @apply flex items-start space-x-3 py-3 border-b border-border-light last:border-b-0;
+  }
+  
+  .activity-icon {
+    @apply w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0;
+  }
+  
+  .activity-content {
+    @apply flex-1 min-w-0;
+  }
+  
+  .activity-title {
+    @apply font-medium text-text-primary text-sm;
+  }
+  
+  .activity-description {
+    @apply text-text-secondary text-sm;
+  }
+  
+  .activity-time {
+    @apply text-text-muted text-xs;
+  }
+  
+  /* Loading States */
+  .loading-skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+  
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-gray-200 border-t-primary-green;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+  
+  .border-gradient {
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #00D4AA 0%, #00B4D8 50%, #4A90E2 100%) border-box;
+    border: 2px solid transparent;
+  }
+}

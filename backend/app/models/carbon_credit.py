@@ -98,7 +98,7 @@ class UserCarbonCredits(BaseModel):
     
     # Relationships
     user = relationship("User", back_populates="carbon_credits")
-    transactions = relationship("CarbonCreditTransaction", back_populates="user_credits")
+    transactions = relationship("CarbonCreditTransaction", foreign_keys="CarbonCreditTransaction.user_id", primaryjoin="UserCarbonCredits.user_id == CarbonCreditTransaction.user_id")
 
     def __repr__(self):
         return f"<UserCarbonCredits(user_id={self.user_id}, current_balance={self.current_balance})>"
@@ -129,7 +129,7 @@ class CarbonCreditTransaction(BaseModel):
     
     # Relationships
     user = relationship("User")
-    user_credits = relationship("UserCarbonCredits", back_populates="transactions")
+    user_credits = relationship("UserCarbonCredits", foreign_keys=[user_id], primaryjoin="CarbonCreditTransaction.user_id == UserCarbonCredits.user_id")
     redemption = relationship("CarbonCreditRedemption", back_populates="transaction", uselist=False)
     
     __table_args__ = (

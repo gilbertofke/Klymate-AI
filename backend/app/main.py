@@ -8,9 +8,8 @@ This is the main FastAPI application that integrates:
 """
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.api import api_router
-from app.core.middleware import LoggingMiddleware, AuthenticationMiddleware
+from app.core.middleware import EnhancedCORSMiddleware, LoggingMiddleware, AuthenticationMiddleware
 from app.core.config import settings
 
 # Initialize FastAPI application
@@ -23,13 +22,16 @@ app = FastAPI(
 )
 
 # Configure Middleware (order matters!)
-# 1. CORS middleware (first)
+# 1. Enhanced CORS middleware (first) - handles preflight requests and Firebase tokens
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS.split(",") if settings.ALLOWED_ORIGINS != "*" else ["*"],
+    EnhancedCORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS.split(","),
     allow_credentials=True,
-    allow_methods=settings.ALLOWED_METHODS.split(",") if settings.ALLOWED_METHODS != "*" else ["*"],
-    allow_headers=settings.ALLOWED_HEADERS.split(",") if settings.ALLOWED_HEADERS != "*" else ["*"],
+    allow_methods=settings.ALLOWED_METHODS.split(","),
+    allow_headers=settings.ALLOWED_HEADERS.split(","),
+    expose_headers=["Content-Length", "Content-Type", "X-Request-ID"],
+    max_age=settings.CORS_MAX_AGE,
+    debug_logging=settings.CORS_DEBUG_LOGGING
 )
 
 # 2. Authentication middleware (using Tangus's comprehensive system)
@@ -37,7 +39,9 @@ app.add_middleware(
     AuthenticationMiddleware,
     exclude_paths=[
         "/", "/health", "/docs", "/redoc", "/openapi.json",
-        "/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh"
+        "/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh",
+        "/api/v1/auth/register-email", "/api/v1/auth/login-email",
+        "/api/v1/users/onboarding"  # Temporarily exclude for debugging
     ]
 )
 

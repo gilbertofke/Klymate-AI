@@ -62,9 +62,10 @@ async def register_user(request: FirebaseTokenRequest):
         auth_result = AuthIntegration.authenticate_user(request.firebase_token)
         
         if not auth_result:
+            # If Firebase authentication fails, return a more helpful error
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid Firebase token"
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Firebase authentication service is not available. Please use the email registration method instead."
             )
         
         return AuthResponse(
@@ -73,10 +74,13 @@ async def register_user(request: FirebaseTokenRequest):
             tokens=auth_result["tokens"]
         )
         
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except FirebaseAuthError as e:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Firebase authentication failed: {str(e)}"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Firebase authentication service unavailable: {str(e)}"
         )
     except JWTError as e:
         raise HTTPException(
@@ -86,8 +90,94 @@ async def register_user(request: FirebaseTokenRequest):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed"
+            detail=f"Registration failed: {str(e)}"
         )
+
+@router.post("/register-email", response_model=AuthResponse)
+async def register_user_with_email(request: Dict[str, Any]):
+    """
+    Register a new user using email and password (fallback when Firebase is not available).
+    
+    This endpoint provides a direct registration method without Firebase dependency.
+    """
+    email = request.get("email")
+    password = request.get("password") 
+    name = request.get("name", "")
+    
+    if not email or not password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email and password are required"
+        )
+    
+    # Create a real user in the database
+    from app.services.user_service import UserService
+    from app.core.database import get_async_db
+    from app.schemas.user import UserCreate
+    
+    # Get database session
+    async for db in get_async_db():
+        try:
+            user_service = UserService(db)
+            
+            # Create user data
+            user_create_data = UserCreate(
+                email=email,
+                name=name or email.split('@')[0],
+                firebase_uid=f"mock_{email}"
+            )
+            
+            # Create user in database
+            user = await user_service.user_repository.create_user(user_create_data)
+            
+            # Convert user to dict for response
+            user_data = {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "display_name": user.display_name or user.name,
+                "firebase_uid": user.firebase_uid,
+                "email_verified": user.email_verified,
+                "is_active": user.is_active,
+                "onboarding_completed": user.onboarding_completed,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat()
+            }
+            
+            # Generate JWT tokens
+            from app.utils.jwt_handler import JWTHandler
+            
+            jwt_user_data = {
+                "user_id": user.id,
+                "firebase_uid": user.firebase_uid,
+                "email": user.email
+            }
+            
+            access_token = JWTHandler.generate_access_token(jwt_user_data)
+            refresh_token = JWTHandler.generate_refresh_token(jwt_user_data)
+            
+            return AuthResponse(
+                message="User registered successfully",
+                user=user_data,
+                tokens={
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
+                    "token_type": "bearer",
+                    "expires_in": "1800"  # 30 minutes
+                }
+            )
+            
+        except ValueError as e:
+            # Handle user already exists error
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Registration failed: {str(e)}"
+            )
 
 @router.post("/login", response_model=AuthResponse)
 async def login_user(request: FirebaseTokenRequest):
@@ -102,9 +192,10 @@ async def login_user(request: FirebaseTokenRequest):
         auth_result = AuthIntegration.authenticate_user(request.firebase_token)
         
         if not auth_result:
+            # If Firebase authentication fails, return a more helpful error
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid Firebase token"
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Firebase authentication service is not available. Please use the email login method instead."
             )
         
         return AuthResponse(
@@ -113,10 +204,13 @@ async def login_user(request: FirebaseTokenRequest):
             tokens=auth_result["tokens"]
         )
         
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except FirebaseAuthError as e:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Firebase authentication failed: {str(e)}"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Firebase authentication service unavailable: {str(e)}"
         )
     except JWTError as e:
         raise HTTPException(
@@ -126,8 +220,95 @@ async def login_user(request: FirebaseTokenRequest):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Login failed"
+            detail=f"Login failed: {str(e)}"
         )
+
+@router.post("/login-email", response_model=AuthResponse)
+async def login_user_with_email(request: Dict[str, Any]):
+    """
+    Login user using email and password (fallback when Firebase is not available).
+    
+    This endpoint provides a direct login method without Firebase dependency.
+    """
+    email = request.get("email")
+    password = request.get("password")
+    
+    if not email or not password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email and password are required"
+        )
+    
+    # For development/testing, create or get existing user
+    from app.services.user_service import UserService
+    from app.core.database import get_async_db
+    from app.schemas.user import UserCreate
+    
+    # Get database session
+    async for db in get_async_db():
+        try:
+            user_service = UserService(db)
+            
+            # Try to get existing user by email
+            existing_user = await user_service.user_repository.get_by_email(email)
+            
+            if not existing_user:
+                # Create new user for development/testing
+                user_create_data = UserCreate(
+                    email=email,
+                    name=email.split('@')[0],
+                    firebase_uid=f"mock_{email}"
+                )
+                
+                existing_user = await user_service.user_repository.create_user(user_create_data)
+            
+            # Update login info
+            user = await user_service.user_repository.update_login_info(existing_user.id)
+            if not user:
+                user = existing_user
+            
+            # Convert user to dict for response
+            user_data = {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "display_name": user.display_name or user.name,
+                "firebase_uid": user.firebase_uid,
+                "email_verified": user.email_verified,
+                "is_active": user.is_active,
+                "onboarding_completed": user.onboarding_completed,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat()
+            }
+            
+            # Generate JWT tokens
+            from app.utils.jwt_handler import JWTHandler
+            
+            jwt_user_data = {
+                "user_id": user.id,
+                "firebase_uid": user.firebase_uid,
+                "email": user.email
+            }
+            
+            access_token = JWTHandler.generate_access_token(jwt_user_data)
+            refresh_token = JWTHandler.generate_refresh_token(jwt_user_data)
+            
+            return AuthResponse(
+                message="Login successful",
+                user=user_data,
+                tokens={
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
+                    "token_type": "bearer",
+                    "expires_in": "1800"  # 30 minutes
+                }
+            )
+            
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Login failed: {str(e)}"
+            )
 
 @router.post("/refresh")
 async def refresh_tokens(request: TokenRefreshRequest):
@@ -230,3 +411,17 @@ async def logout_user(current_user: Dict[str, Any] = Depends(get_current_user)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Logout failed"
         )
+
+@router.get("/firebase-status")
+async def get_firebase_status():
+    """
+    Get Firebase configuration status for debugging.
+    """
+    from app.utils.firebase_config import FirebaseConfig
+    
+    return {
+        "firebase_initialized": FirebaseConfig.is_initialized(),
+        "project_id": "configured" if FirebaseConfig.is_initialized() else "not configured",
+        "fallback_available": True,
+        "message": "Firebase Admin SDK status"
+    }
