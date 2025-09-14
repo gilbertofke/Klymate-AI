@@ -111,9 +111,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Frontend build
+# Frontend build and cache
 frontend/dist/
 frontend/build/
+frontend/.next/
+frontend/out/
+frontend/test-results/
+frontend/playwright-report/
+.next
+out
 
 # Temporary files
 *.tmp
