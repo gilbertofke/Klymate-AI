@@ -95,12 +95,26 @@ export function OnboardingWizard({ onComplete, className }: OnboardingWizardProp
     setIsValid(stepValidation[currentStep - 1] || false)
   }
   
+  const { user, setUser } = useAuthStore();
+  const router = useRouter();
+
   const handleComplete = async () => {
     try {
-      await completeOnboarding.submitOnboarding(collectedData as OnboardingData)
+      await completeOnboarding.submitOnboarding(collectedData as OnboardingData);
+      
+      // Update the user's onboarding status locally
+      if (user) {
+        setUser({
+          ...user,
+          onboarding_completed: true
+        });
+      }
+
+      // Redirect to dashboard
+      router.push('/dashboard');
     } catch (error) {
       // Error is already handled by the enhanced hook
-      console.error('Onboarding completion failed:', error)
+      console.error('Onboarding completion failed:', error);
     }
   }
 

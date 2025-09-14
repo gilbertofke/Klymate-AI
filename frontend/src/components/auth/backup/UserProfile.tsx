@@ -33,7 +33,7 @@ interface UserProfileProps {
 
 export default function UserProfile({ onClose, className = '' }: UserProfileProps) {
   const { user } = useAuth()
-  const { loading } = useAuthStore()
+  const { refreshUser, isLoading } = useAuthStore()
   const [isEditing, setIsEditing] = useState(false)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
@@ -305,17 +305,17 @@ export default function UserProfile({ onClose, className = '' }: UserProfileProp
               <button
                 type="button"
                 onClick={handleCancel}
-                disabled={isSubmitting || loading}
+                disabled={isSubmitting || isLoading}
                 className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary border border-border-medium hover:border-border-dark rounded-lg transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || loading}
+                disabled={isSubmitting || isLoading}
                 className="px-4 py-2 text-sm font-medium bg-primary-green hover:bg-primary-greenLight text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting || loading ? (
+                {isSubmitting || isLoading ? (
                   <div className="flex items-center">
                     <LoadingSpinner size="sm" color="white" className="mr-2" />
                     Saving...

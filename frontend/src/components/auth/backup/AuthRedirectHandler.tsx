@@ -10,7 +10,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner'
  * Should be included in the main layout or auth pages
  */
 export default function AuthRedirectHandler() {
-  const { loading } = useAuthStore()
+  const { initialize, isInitialized, isLoading } = useAuthStore()
   const router = useRouter()
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function AuthRedirectHandler() {
   }, [initialize, isInitialized])
 
   // Don't render anything visible, this is just for handling redirects
-  if (loading) {
+  if (isLoading && !isInitialized) {
     return (
       <div className="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
         <div className="text-center">

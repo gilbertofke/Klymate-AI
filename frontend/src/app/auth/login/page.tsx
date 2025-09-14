@@ -8,14 +8,8 @@ import { PublicRoute } from '@/components/auth/AuthGuard'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 export default function LoginPage() {
-  const router = useRouter()
-
-  const handleLoginSuccess = () => {
-    router.push('/dashboard')
-  }
-
   return (
-    <PublicRoute redirectTo="/dashboard">
+    <PublicRoute>
       <div className="min-h-screen bg-gradient-primary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -24,8 +18,6 @@ export default function LoginPage() {
           className="w-full max-w-md"
         >
           <LoginForm 
-            onSuccess={handleLoginSuccess}
-            redirectTo="/dashboard"
             showSocialAuth={true}
           />
         </motion.div>

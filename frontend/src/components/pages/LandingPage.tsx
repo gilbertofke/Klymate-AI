@@ -107,7 +107,7 @@ export default function LandingPage() {
               <Link href="/auth/login" className="btn-ghost text-text-secondary hover:text-text-primary">
                 Sign In
               </Link>
-              <Link href="/auth/register" className="btn-primary">
+              <Link href="/onboarding-enhanced" className="btn-primary">
                 Get Started
               </Link>
             </motion.div>
@@ -163,7 +163,7 @@ export default function LandingPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.4 }}
                   >
-                    <Link href="/auth/register" className="inline-flex items-center px-8 py-4 bg-white text-primary-green font-semibold rounded-button hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <Link href="/onboarding-enhanced" className="inline-flex items-center px-8 py-4 bg-white text-primary-green font-semibold rounded-button hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                       Meet Your Climate Mate
                       <ArrowRightIcon className="ml-2 w-5 h-5" />
                     </Link>
@@ -445,7 +445,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                <Link href="/auth/register" className="inline-flex items-center px-8 py-4 bg-white text-primary-green font-semibold rounded-button hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-lg">
+                <Link href="/onboarding-simple" className="inline-flex items-center px-8 py-4 bg-white text-primary-green font-semibold rounded-button hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-lg">
                   Meet Your Climate Mate
                   <ArrowRightIcon className="ml-2 w-5 h-5" />
                 </Link>
@@ -498,7 +498,7 @@ export default function LandingPage() {
                 Your personal AI companion for climate awareness and sustainable living. Together, we're building a cleaner, safer, and more sustainable Earth for everyone.
               </p>
               <div className="flex items-center space-x-4">
-                <Link href="/auth/register" className="btn-primary bg-gradient-primary text-white px-6 py-2 text-sm">
+                <Link href="/onboarding-simple" className="btn-primary bg-gradient-primary text-white px-6 py-2 text-sm">
                   Get Started
                 </Link>
                 <Link href="/auth/login" className="text-gray-400 hover:text-white transition-colors text-sm">

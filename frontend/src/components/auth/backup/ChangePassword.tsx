@@ -39,7 +39,7 @@ interface ChangePasswordProps {
 }
 
 export default function ChangePassword({ onClose, onSuccess, className = '' }: ChangePasswordProps) {
-  const { loading } = useAuthStore()
+  const { changePassword, isLoading } = useAuthStore()
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -288,7 +288,7 @@ export default function ChangePassword({ onClose, onSuccess, className = '' }: C
             <button
               type="button"
               onClick={onClose}
-              disabled={isSubmitting || loading}
+              disabled={isSubmitting || isLoading}
               className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary border border-border-medium hover:border-border-dark rounded-lg transition-colors disabled:opacity-50"
             >
               Cancel
@@ -296,10 +296,10 @@ export default function ChangePassword({ onClose, onSuccess, className = '' }: C
           )}
           <button
             type="submit"
-            disabled={isSubmitting || loading || (passwordStrength ? !passwordStrength.isValid : false)}
+            disabled={isSubmitting || isLoading || (passwordStrength ? !passwordStrength.isValid : false)}
             className="px-4 py-2 text-sm font-medium bg-primary-green hover:bg-primary-greenLight text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting || loading ? (
+            {isSubmitting || isLoading ? (
               <div className="flex items-center">
                 <LoadingSpinner size="sm" color="white" className="mr-2" />
                 Changing...

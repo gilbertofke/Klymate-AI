@@ -48,7 +48,7 @@ export default function AuthGuard({
       requireOnboarding,
       isInitialized,
       isAuthenticated,
-      loading,
+      isLoading,
       userId: user?.uid
     });
     return () => {

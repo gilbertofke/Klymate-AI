@@ -44,7 +44,7 @@ export default function LoginForm({
   className = '' 
 }: LoginFormProps) {
   const router = useRouter()
-  const { loginWithEmail, loading, error, clearError } = useAuthStore()
+  const { loginWithEmail, isLoading, error, clearError } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
 
   const {
@@ -78,8 +78,8 @@ export default function LoginForm({
         onSuccess();
       }
       
-      // Always navigate to dashboard after successful login
-      router.replace('/dashboard');
+      // Let AuthGuard handle any further redirects based on user's state
+      console.log('Login successful, AuthGuard will handle redirect');
     } catch (err: any) {
       const errorMessage = err.message || 'Login failed'
       
@@ -245,10 +245,10 @@ export default function LoginForm({
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isSubmitting || loading}
+            disabled={isSubmitting || isLoading}
             className="w-full btn-primary py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting || loading ? (
+            {isSubmitting || isLoading ? (
               <div className="flex items-center justify-center">
                 <LoadingSpinner size="sm" color="white" className="mr-2" />
                 Signing in...

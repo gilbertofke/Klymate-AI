@@ -63,7 +63,7 @@ export default function RegisterForm({
   className = '' 
 }: RegisterFormProps) {
   const router = useRouter()
-  const { registerWithEmail, loading, error, clearError } = useAuthStore()
+  const { registerWithEmail, isLoading, error, clearError } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState<{
@@ -199,7 +199,7 @@ export default function RegisterForm({
         )}
 
         {/* Registration Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" data-testid="register-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Name Field */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-text-primary mb-2">
@@ -402,11 +402,10 @@ export default function RegisterForm({
           {/* Submit Button */}
           <button
             type="submit"
-            data-testid="submit-button"
-            disabled={isSubmitting || loading || (passwordStrength ? !passwordStrength.isValid : false)}
+            disabled={isSubmitting || isLoading || (passwordStrength ? !passwordStrength.isValid : false)}
             className="w-full btn-primary py-3 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting || loading ? (
+            {isSubmitting || isLoading ? (
               <div className="flex items-center justify-center">
                 <LoadingSpinner size="sm" color="white" className="mr-2" />
                 Creating account...
